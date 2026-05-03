@@ -38,19 +38,19 @@ function convertMeasurement(value: number, key: string, from: string, to: string
 }
 
 const BODY_MEASUREMENT_FIELDS = [
-  { key: 'height', unitMetric: 'cm', unitImperial: 'in', placeholderMetric: 'e.g. 178', placeholderImperial: 'e.g. 70' },
-  { key: 'weight', unitMetric: 'kg', unitImperial: 'lbs', placeholderMetric: 'e.g. 75', placeholderImperial: 'e.g. 165' },
-  { key: 'chest', unitMetric: 'cm', unitImperial: 'in', placeholderMetric: 'e.g. 96', placeholderImperial: 'e.g. 38' },
-  { key: 'waist', unitMetric: 'cm', unitImperial: 'in', placeholderMetric: 'e.g. 82', placeholderImperial: 'e.g. 32' },
-  { key: 'hips', unitMetric: 'cm', unitImperial: 'in', placeholderMetric: 'e.g. 98', placeholderImperial: 'e.g. 39' },
-  { key: 'inseam', unitMetric: 'cm', unitImperial: 'in', placeholderMetric: 'e.g. 81', placeholderImperial: 'e.g. 32' },
+  { key: 'height', unitMetric: 'cm', unitImperial: 'in', placeholderMetric: '例如 178', placeholderImperial: '例如 70' },
+  { key: 'weight', unitMetric: 'kg', unitImperial: 'lbs', placeholderMetric: '例如 75', placeholderImperial: '例如 165' },
+  { key: 'chest', unitMetric: 'cm', unitImperial: 'in', placeholderMetric: '例如 96', placeholderImperial: '例如 38' },
+  { key: 'waist', unitMetric: 'cm', unitImperial: 'in', placeholderMetric: '例如 82', placeholderImperial: '例如 32' },
+  { key: 'hips', unitMetric: 'cm', unitImperial: 'in', placeholderMetric: '例如 98', placeholderImperial: '例如 39' },
+  { key: 'inseam', unitMetric: 'cm', unitImperial: 'in', placeholderMetric: '例如 81', placeholderImperial: '例如 32' },
 ] as const;
 
 const SIZE_FIELDS = [
-  { key: 'shirt_size', label: 'Shirt Size', placeholder: 'e.g. M, L, XL' },
-  { key: 'pants_size', label: 'Pants Size', placeholder: 'e.g. 32, 34' },
-  { key: 'dress_size', label: 'Dress Size', placeholder: 'e.g. 8, 10' },
-  { key: 'shoe_size', label: 'Shoe Size', placeholder: 'e.g. 10, 42' },
+  { key: 'shirt_size', label: '衬衫尺码', placeholder: '例如 M, L, XL' },
+  { key: 'pants_size', label: '裤子尺码', placeholder: '例如 32, 34' },
+  { key: 'dress_size', label: '裙子尺码', placeholder: '例如 8, 10' },
+  { key: 'shoe_size', label: '鞋码', placeholder: '例如 10, 42' },
 ] as const;
 
 function getErrorMessage(e: unknown, fallback: string): string {
@@ -218,7 +218,7 @@ export default function SettingsPage() {
 
   const handleGetCurrentLocation = () => {
     if (!navigator.geolocation) {
-      toast.error('Geolocation is not supported by your browser');
+      toast.error('您的浏览器不支持地理定位');
       return;
     }
 
@@ -254,11 +254,11 @@ export default function SettingsPage() {
         }
 
         setIsGettingLocation(false);
-        toast.success('Location detected');
+        toast.success('已检测到位置');
       },
       (error) => {
         setIsGettingLocation(false);
-        toast.error(`Failed to get location: ${error.message}`);
+        toast.error(`获取位置失败: ${error.message}`);
       },
       { enableHighAccuracy: true, timeout: 10000 }
     );
@@ -269,17 +269,17 @@ export default function SettingsPage() {
     const lon = parseFloat(locationLon);
 
     if (isNaN(lat) || isNaN(lon)) {
-      toast.error('Please enter valid latitude and longitude values');
+      toast.error('请输入有效的经纬度值');
       return;
     }
 
     if (lat < -90 || lat > 90) {
-      toast.error('Latitude must be between -90 and 90');
+      toast.error('纬度必须在-90到90之间');
       return;
     }
 
     if (lon < -180 || lon > 180) {
-      toast.error('Longitude must be between -180 and 180');
+      toast.error('经度必须在-180到180之间');
       return;
     }
 
@@ -290,9 +290,9 @@ export default function SettingsPage() {
         location_name: locationName || undefined,
         timezone: timezone,
       });
-      toast.success('Location and timezone saved');
+      toast.success('位置和时区已保存');
     } catch {
-      toast.error('Failed to save location');
+      toast.error('保存位置失败');
     }
   };
 
@@ -313,7 +313,7 @@ export default function SettingsPage() {
 
     const origPush = history.pushState.bind(history);
     history.pushState = function (...args) {
-      if (window.confirm('You have unsaved changes. Leave this page?')) {
+      if (window.confirm('您有未保存的更改。确定要离开此页面吗？')) {
         origPush(...args);
       }
     };
@@ -359,7 +359,7 @@ export default function SettingsPage() {
       if (numericKeys.includes(key)) {
         const num = parseFloat(trimmed);
         if (isNaN(num) || num <= 0) {
-          toast.error(`${key.charAt(0).toUpperCase() + key.slice(1)} must be a positive number`);
+          toast.error(`${key.charAt(0).toUpperCase() + key.slice(1)}必须是正数`);
           return;
         }
         parsed[key] = convertMeasurement(num, key, unitSystem, 'metric');
@@ -372,9 +372,9 @@ export default function SettingsPage() {
         body_measurements: Object.keys(parsed).length > 0 ? parsed : null,
       });
       setMeasurementsDirty(false);
-      toast.success('Measurements saved');
+      toast.success('身体数据已保存');
     } catch (e) {
-      toast.error(getErrorMessage(e, 'Failed to save measurements'));
+      toast.error(getErrorMessage(e, '保存身体数据失败'));
     }
   };
 
@@ -395,7 +395,7 @@ export default function SettingsPage() {
     } catch (error) {
       setEndpointTests((prev) => ({
         ...prev,
-        [index]: { status: 'error', error: 'Failed to test endpoint' },
+        [index]: { status: 'error', error: '测试端点失败' },
       }));
     }
   };
@@ -451,7 +451,7 @@ export default function SettingsPage() {
   };
 
   const handleReset = async () => {
-    if (confirm('Reset all preferences to defaults?')) {
+    if (confirm('确定要将所有偏好重置为默认值吗？')) {
       try {
         await resetPreferences.mutateAsync();
       } catch (error) {
@@ -472,15 +472,15 @@ export default function SettingsPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
+          <h1 className="text-2xl font-bold tracking-tight">设置</h1>
           <p className="text-sm text-muted-foreground">
-            Manage your preferences and account settings
+            管理您的偏好和账户设置
           </p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={handleReset} disabled={resetPreferences.isPending}>
             <RotateCcw className="mr-2 h-4 w-4" />
-            Reset
+            重置
           </Button>
           <Button size="sm" onClick={handleSave} disabled={!hasChanges || updatePreferences.isPending}>
             {updatePreferences.isPending ? (
@@ -488,7 +488,7 @@ export default function SettingsPage() {
             ) : (
               <Save className="mr-2 h-4 w-4" />
             )}
-            Save
+            保存
           </Button>
         </div>
       </div>
@@ -497,17 +497,17 @@ export default function SettingsPage() {
         {/* Account Section */}
         <Card>
           <CardHeader>
-            <CardTitle>Account</CardTitle>
-            <CardDescription>Your profile information</CardDescription>
+            <CardTitle>账户</CardTitle>
+            <CardDescription>您的个人资料信息</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label>Name</Label>
+                <Label>名称</Label>
                 <Input value={userProfile?.display_name || ''} disabled />
               </div>
               <div className="space-y-2">
-                <Label>Email</Label>
+                <Label>邮箱</Label>
                 <Input value={userProfile?.email || ''} disabled />
               </div>
             </div>
@@ -519,65 +519,65 @@ export default function SettingsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <MapPin className="h-5 w-5" />
-              Location
+              位置
             </CardTitle>
             <CardDescription>
-              Set your location for weather-based outfit recommendations
+              设置您的位置以获取基于天气的穿搭推荐
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>City / Location Name (optional)</Label>
+              <Label>城市/位置名称（可选）</Label>
               <Input
                 value={locationName}
                 onChange={(e) => setLocationName(e.target.value)}
-                placeholder="e.g., London, UK"
+                placeholder="例如，北京市，中国"
               />
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label>Latitude</Label>
+                <Label>纬度</Label>
                 <Input
                   type="number"
                   step="0.000001"
                   value={locationLat}
                   onChange={(e) => setLocationLat(e.target.value)}
-                  placeholder="e.g., 51.5074"
+                  placeholder="例如，39.9042"
                 />
               </div>
               <div className="space-y-2">
-                <Label>Longitude</Label>
+                <Label>经度</Label>
                 <Input
                   type="number"
                   step="0.000001"
                   value={locationLon}
                   onChange={(e) => setLocationLon(e.target.value)}
-                  placeholder="e.g., -0.1278"
+                  placeholder="例如，116.4074"
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Timezone</Label>
+              <Label>时区</Label>
               <Select value={timezone} onValueChange={setTimezone}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select timezone" />
+                  <SelectValue placeholder="选择时区" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="UTC">UTC</SelectItem>
-                  <SelectItem value="America/New_York">Eastern Time (US)</SelectItem>
-                  <SelectItem value="America/Chicago">Central Time (US)</SelectItem>
-                  <SelectItem value="America/Denver">Mountain Time (US)</SelectItem>
-                  <SelectItem value="America/Los_Angeles">Pacific Time (US)</SelectItem>
-                  <SelectItem value="Europe/London">London (UK)</SelectItem>
-                  <SelectItem value="Europe/Paris">Paris (EU Central)</SelectItem>
-                  <SelectItem value="Europe/Berlin">Berlin (EU Central)</SelectItem>
-                  <SelectItem value="Asia/Tokyo">Tokyo (Japan)</SelectItem>
-                  <SelectItem value="Asia/Shanghai">Shanghai (China)</SelectItem>
-                  <SelectItem value="Asia/Kolkata">India (IST)</SelectItem>
-                  <SelectItem value="Asia/Kathmandu">Nepal (NPT)</SelectItem>
-                  <SelectItem value="Asia/Dubai">Dubai (UAE)</SelectItem>
-                  <SelectItem value="Australia/Sydney">Sydney (Australia)</SelectItem>
-                  <SelectItem value="Pacific/Auckland">Auckland (NZ)</SelectItem>
+                  <SelectItem value="America/New_York">美国东部时间</SelectItem>
+                  <SelectItem value="America/Chicago">美国中部时间</SelectItem>
+                  <SelectItem value="America/Denver">美国山地时间</SelectItem>
+                  <SelectItem value="America/Los_Angeles">美国太平洋时间</SelectItem>
+                  <SelectItem value="Europe/London">伦敦（英国）</SelectItem>
+                  <SelectItem value="Europe/Paris">巴黎（欧洲中部）</SelectItem>
+                  <SelectItem value="Europe/Berlin">柏林（欧洲中部）</SelectItem>
+                  <SelectItem value="Asia/Tokyo">东京（日本）</SelectItem>
+                  <SelectItem value="Asia/Shanghai">上海（中国）</SelectItem>
+                  <SelectItem value="Asia/Kolkata">印度（IST）</SelectItem>
+                  <SelectItem value="Asia/Kathmandu">尼泊尔（NPT）</SelectItem>
+                  <SelectItem value="Asia/Dubai">迪拜（阿联酋）</SelectItem>
+                  <SelectItem value="Australia/Sydney">悉尼（澳大利亚）</SelectItem>
+                  <SelectItem value="Pacific/Auckland">奥克兰（新西兰）</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -592,7 +592,7 @@ export default function SettingsPage() {
                 ) : (
                   <Navigation className="h-4 w-4 mr-2" />
                 )}
-                Use My Location
+                使用我的位置
               </Button>
               <Button
                 onClick={handleSaveLocation}
@@ -603,12 +603,12 @@ export default function SettingsPage() {
                 ) : (
                   <Save className="h-4 w-4 mr-2" />
                 )}
-                Save Location
+                保存位置
               </Button>
             </div>
             {!locationLat && !locationLon && (
               <p className="text-sm text-amber-600 dark:text-amber-400">
-                Location is required for weather-based outfit recommendations.
+                位置信息是基于天气的穿搭推荐所必需的。
               </p>
             )}
           </CardContent>
@@ -619,20 +619,20 @@ export default function SettingsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Ruler className="h-5 w-5" />
-              Body Measurements
+              身体数据
             </CardTitle>
-            <CardDescription>Help AI recommend better-fitting outfits</CardDescription>
+            <CardDescription>帮助AI推荐更合身的穿搭</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex items-center justify-between">
-              <Label>Unit System</Label>
+              <Label>单位系统</Label>
               <Button variant="outline" size="sm" onClick={handleToggleUnits}>
-                {unitSystem === 'metric' ? 'Metric (cm/kg)' : 'Imperial (in/lbs)'}
+                {unitSystem === 'metric' ? '公制 (cm/kg)' : '英制 (in/lbs)'}
               </Button>
             </div>
 
             <div>
-              <Label className="text-muted-foreground mb-3 block">Body</Label>
+              <Label className="text-muted-foreground mb-3 block">身体</Label>
               <div className="grid gap-3 sm:grid-cols-2">
                 {BODY_MEASUREMENT_FIELDS.map((field) => {
                   const unit = unitSystem === 'metric' ? field.unitMetric : field.unitImperial;
@@ -659,7 +659,7 @@ export default function SettingsPage() {
             </div>
 
             <div>
-              <Label className="text-muted-foreground mb-3 block">Sizes</Label>
+              <Label className="text-muted-foreground mb-3 block">尺码</Label>
               <div className="grid gap-3 sm:grid-cols-2">
                 {SIZE_FIELDS.map((field) => (
                   <div key={field.key} className="space-y-1">
@@ -681,9 +681,9 @@ export default function SettingsPage() {
                 size="sm"
               >
                 {updateUserProfile.isPending ? (
-                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Saving...</>
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" />保存中...</>
                 ) : (
-                  <><Save className="mr-2 h-4 w-4" />Save Measurements</>
+                  <><Save className="mr-2 h-4 w-4" />保存身体数据</>
                 )}
               </Button>
             )}
@@ -693,19 +693,19 @@ export default function SettingsPage() {
         {/* Color Preferences */}
         <Card>
           <CardHeader>
-            <CardTitle>Color Preferences</CardTitle>
+            <CardTitle>颜色偏好</CardTitle>
             <CardDescription>
-              Select colors you love and colors to avoid in recommendations
+              选择您喜欢的颜色和推荐中要避免的颜色
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <ColorPicker
-              label="Favorite Colors"
+              label="喜欢的颜色"
               selected={formData.color_favorites || []}
               onChange={(colors) => updateField('color_favorites', colors)}
             />
             <ColorPicker
-              label="Colors to Avoid"
+              label="要避免的颜色"
               selected={formData.color_avoid || []}
               onChange={(colors) => updateField('color_avoid', colors)}
             />
@@ -715,34 +715,34 @@ export default function SettingsPage() {
         {/* Style Profile */}
         <Card>
           <CardHeader>
-            <CardTitle>Style Profile</CardTitle>
+            <CardTitle>风格档案</CardTitle>
             <CardDescription>
-              Adjust how much you prefer each style in outfit recommendations
+              调整您在穿搭推荐中对每种风格的偏好程度
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <StyleSlider
-              label="Casual"
+              label="休闲"
               value={formData.style_profile?.casual ?? 50}
               onChange={(v) => updateStyleProfile('casual', v)}
             />
             <StyleSlider
-              label="Formal"
+              label="正式"
               value={formData.style_profile?.formal ?? 50}
               onChange={(v) => updateStyleProfile('formal', v)}
             />
             <StyleSlider
-              label="Sporty"
+              label="运动"
               value={formData.style_profile?.sporty ?? 50}
               onChange={(v) => updateStyleProfile('sporty', v)}
             />
             <StyleSlider
-              label="Minimalist"
+              label="简约"
               value={formData.style_profile?.minimalist ?? 50}
               onChange={(v) => updateStyleProfile('minimalist', v)}
             />
             <StyleSlider
-              label="Bold"
+              label="大胆"
               value={formData.style_profile?.bold ?? 50}
               onChange={(v) => updateStyleProfile('bold', v)}
             />
@@ -752,15 +752,15 @@ export default function SettingsPage() {
         {/* Temperature & Comfort */}
         <Card>
           <CardHeader>
-            <CardTitle>Temperature & Comfort</CardTitle>
+            <CardTitle>温度与舒适度</CardTitle>
             <CardDescription>
-              Adjust how recommendations adapt to weather
+              调整推荐如何适应天气
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label>Temperature Unit</Label>
+                <Label>温度单位</Label>
                 <Select
                   value={formData.temperature_unit || 'celsius'}
                   onValueChange={(v) =>
@@ -771,13 +771,13 @@ export default function SettingsPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="celsius">Celsius (°C)</SelectItem>
-                    <SelectItem value="fahrenheit">Fahrenheit (°F)</SelectItem>
+                    <SelectItem value="celsius">摄氏度 (°C)</SelectItem>
+                    <SelectItem value="fahrenheit">华氏度 (°F)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Temperature Sensitivity</Label>
+                <Label>温度敏感度</Label>
                 <Select
                   value={formData.temperature_sensitivity || 'normal'}
                   onValueChange={(v) =>
@@ -788,16 +788,16 @@ export default function SettingsPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="low">I feel warm easily</SelectItem>
-                    <SelectItem value="normal">Normal</SelectItem>
-                    <SelectItem value="high">I feel cold easily</SelectItem>
+                    <SelectItem value="low">怕热</SelectItem>
+                    <SelectItem value="normal">适中</SelectItem>
+                    <SelectItem value="high">怕冷</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label>Layering Preference</Label>
+                <Label>层次偏好</Label>
                 <Select
                   value={formData.layering_preference || 'moderate'}
                   onValueChange={(v) =>
@@ -808,9 +808,9 @@ export default function SettingsPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="minimal">Minimal layers</SelectItem>
-                    <SelectItem value="moderate">Moderate layers</SelectItem>
-                    <SelectItem value="heavy">Heavy layers</SelectItem>
+                    <SelectItem value="minimal">少量层次</SelectItem>
+                    <SelectItem value="moderate">适量层次</SelectItem>
+                    <SelectItem value="heavy">大量层次</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -824,7 +824,7 @@ export default function SettingsPage() {
                 return (
                   <>
                     <div className="space-y-2">
-                      <Label>Cold Threshold ({isFahrenheit ? '°F' : '°C'})</Label>
+                      <Label>寒冷阈值 ({isFahrenheit ? '°F' : '°C'})</Label>
                       <Input
                         type="number"
                         value={isFahrenheit ? Math.round(toF(coldC)) : coldC}
@@ -837,7 +837,7 @@ export default function SettingsPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Hot Threshold ({isFahrenheit ? '°F' : '°C'})</Label>
+                      <Label>炎热阈值 ({isFahrenheit ? '°F' : '°C'})</Label>
                       <Input
                         type="number"
                         value={isFahrenheit ? Math.round(toF(hotC)) : hotC}
@@ -859,15 +859,15 @@ export default function SettingsPage() {
         {/* Recommendation Settings */}
         <Card>
           <CardHeader>
-            <CardTitle>Recommendation Settings</CardTitle>
+            <CardTitle>推荐设置</CardTitle>
             <CardDescription>
-              Customize how outfit recommendations are generated
+              自定义穿搭推荐的生成方式
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label>Default Occasion</Label>
+                <Label>默认场合</Label>
                 <Select
                   value={formData.default_occasion || 'casual'}
                   onValueChange={(v) => updateField('default_occasion', v)}
@@ -885,7 +885,7 @@ export default function SettingsPage() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Variety Level</Label>
+                <Label>多样性级别</Label>
                 <Select
                   value={formData.variety_level || 'moderate'}
                   onValueChange={(v) =>
@@ -896,16 +896,16 @@ export default function SettingsPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="low">Low (stick to favorites)</SelectItem>
-                    <SelectItem value="moderate">Moderate</SelectItem>
-                    <SelectItem value="high">High (try new combinations)</SelectItem>
+                    <SelectItem value="low">低（坚持偏好）</SelectItem>
+                    <SelectItem value="moderate">适中</SelectItem>
+                    <SelectItem value="high">高（尝试新组合）</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label>Avoid Repeat Items Within (days)</Label>
+                <Label>避免重复单品的间隔（天）</Label>
                 <Input
                   type="number"
                   value={formData.avoid_repeat_days ?? 7}
@@ -915,7 +915,7 @@ export default function SettingsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Prefer Underused Items</Label>
+                <Label>优先使用使用较少的单品</Label>
                 <Select
                   value={formData.prefer_underused_items ? 'yes' : 'no'}
                   onValueChange={(v) => updateField('prefer_underused_items', v === 'yes')}
@@ -924,8 +924,8 @@ export default function SettingsPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="yes">Yes</SelectItem>
-                    <SelectItem value="no">No</SelectItem>
+                    <SelectItem value="yes">是</SelectItem>
+                    <SelectItem value="no">否</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -938,16 +938,16 @@ export default function SettingsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Server className="h-5 w-5" />
-              AI Endpoints
+              AI端点
             </CardTitle>
             <CardDescription>
-              Configure AI endpoints for image analysis. Endpoints are tried in order from top to bottom.
+              配置用于图像分析的AI端点。端点按从上到下的顺序依次尝试。
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {(formData.ai_endpoints || []).length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                No custom endpoints configured. Using default server settings.
+                未配置自定义端点。使用默认服务器设置。
               </p>
             ) : (
               <div className="space-y-3">
@@ -991,7 +991,7 @@ export default function SettingsPage() {
                             </Button>
                           </div>
                           <span className="font-medium text-sm truncate">
-                            {endpoint.name || `Endpoint ${index + 1}`}
+                            {endpoint.name || `端点 ${index + 1}`}
                           </span>
                         </div>
                         <div className="flex items-center gap-1 shrink-0">
@@ -1024,16 +1024,16 @@ export default function SettingsPage() {
                       {/* Status badges and test button */}
                       <div className="flex items-center gap-2 flex-wrap">
                         <Badge variant={endpoint.enabled ? 'default' : 'secondary'} className="text-xs">
-                          {endpoint.enabled ? 'Active' : 'Disabled'}
+                          {endpoint.enabled ? '已启用' : '已禁用'}
                         </Badge>
                         {endpointTests[index]?.status === 'connected' && (
                           <Badge variant="outline" className="text-xs text-green-600 border-green-600">
-                            Connected
+                            已连接
                           </Badge>
                         )}
                         {endpointTests[index]?.status === 'error' && (
                           <Badge variant="outline" className="text-xs text-red-600 border-red-600">
-                            Error
+                            错误
                           </Badge>
                         )}
                         <Button
@@ -1046,7 +1046,7 @@ export default function SettingsPage() {
                           {endpointTests[index]?.status === 'testing' ? (
                             <Loader2 className="h-3 w-3 animate-spin mr-1" />
                           ) : null}
-                          Test Connection
+                          测试连接
                         </Button>
                       </div>
                     </div>
@@ -1054,17 +1054,17 @@ export default function SettingsPage() {
                     {endpointTests[index]?.status === 'connected' && endpointTests[index]?.models && (
                       <div className="text-xs space-y-1 p-2 bg-green-50 dark:bg-green-950 rounded overflow-hidden">
                         <p className="font-medium text-green-700 dark:text-green-300">
-                          {endpointTests[index].models?.length} models available
+                          {endpointTests[index].models?.length}个可用模型
                         </p>
                         {endpointTests[index].visionModels && endpointTests[index].visionModels!.length > 0 && (
                           <p className="text-green-600 dark:text-green-400 truncate" title={endpointTests[index].visionModels?.join(', ')}>
-                            Vision: {endpointTests[index].visionModels?.slice(0, 3).join(', ')}
+                            视觉: {endpointTests[index].visionModels?.slice(0, 3).join(', ')}
                             {(endpointTests[index].visionModels?.length || 0) > 3 && '...'}
                           </p>
                         )}
                         {endpointTests[index].textModels && endpointTests[index].textModels!.length > 0 && (
                           <p className="text-green-600 dark:text-green-400 truncate" title={endpointTests[index].textModels?.join(', ')}>
-                            Text: {endpointTests[index].textModels?.slice(0, 3).join(', ')}
+                            文本: {endpointTests[index].textModels?.slice(0, 3).join(', ')}
                             {(endpointTests[index].textModels?.length || 0) > 3 && '...'}
                           </p>
                         )}
@@ -1077,7 +1077,7 @@ export default function SettingsPage() {
                     )}
                     <div className="grid gap-3 sm:grid-cols-2">
                       <div className="space-y-1">
-                        <Label className="text-xs">Name</Label>
+                        <Label className="text-xs">名称</Label>
                         <Input
                           value={endpoint.name}
                           onChange={(e) => {
@@ -1085,7 +1085,7 @@ export default function SettingsPage() {
                             updated[index] = { ...updated[index], name: e.target.value };
                             updateField('ai_endpoints', updated);
                           }}
-                          placeholder="e.g., Local Ollama"
+                          placeholder="例如，本地 Ollama"
                           className="h-8"
                         />
                       </div>
@@ -1103,7 +1103,7 @@ export default function SettingsPage() {
                         />
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-xs">Vision Model</Label>
+                        <Label className="text-xs">视觉模型</Label>
                         <Input
                           value={endpoint.vision_model}
                           onChange={(e) => {
@@ -1116,7 +1116,7 @@ export default function SettingsPage() {
                         />
                       </div>
                       <div className="space-y-1">
-                        <Label className="text-xs">Text Model</Label>
+                        <Label className="text-xs">文本模型</Label>
                         <Input
                           value={endpoint.text_model}
                           onChange={(e) => {
@@ -1139,7 +1139,7 @@ export default function SettingsPage() {
                 className="flex-1"
                 onClick={() => {
                   const newEndpoint: AIEndpoint = {
-                    name: `Endpoint ${(formData.ai_endpoints || []).length + 1}`,
+                    name: `端点 ${(formData.ai_endpoints || []).length + 1}`,
                     url: 'http://localhost:11434/v1',
                     vision_model: 'moondream',
                     text_model: 'phi3:mini',
@@ -1149,7 +1149,7 @@ export default function SettingsPage() {
                 }}
               >
                 <Plus className="h-4 w-4 mr-2" />
-                Add Endpoint
+                添加端点
               </Button>
               {hasChanges && (
                 <Button onClick={handleSave} disabled={updatePreferences.isPending}>
@@ -1158,7 +1158,7 @@ export default function SettingsPage() {
                   ) : (
                     <Save className="h-4 w-4 mr-2" />
                   )}
-                  Save
+                  保存
                 </Button>
               )}
             </div>

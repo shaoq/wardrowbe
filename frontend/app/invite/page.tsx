@@ -13,11 +13,11 @@ import { ApiError } from '@/lib/api';
 
 function getErrorMessage(error: unknown): string {
   if (error instanceof ApiError) {
-    if (error.status === 404) return 'This invite link is invalid or has expired.';
-    if (error.status === 403) return 'This invite was sent to a different email address.';
-    if (error.status === 409) return 'You are already in a family.';
+    if (error.status === 404) return '此邀请链接无效或已过期。';
+    if (error.status === 403) return '此邀请发送到了不同的邮箱地址。';
+    if (error.status === 409) return '您已在一个家庭中。';
   }
-  return 'Something went wrong. Please try again.';
+  return '出现了一些问题，请重试。';
 }
 
 function InviteContent() {
@@ -50,7 +50,7 @@ function InviteContent() {
   const handleAccept = async () => {
     try {
       const result = await joinByToken.mutateAsync(token);
-      toast.success(`Joined ${result.family_name}!`);
+      toast.success(`已加入 ${result.family_name}！`);
       router.push('/dashboard/family');
     } catch {
       // error displayed via joinByToken.error below
@@ -63,10 +63,10 @@ function InviteContent() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <UserPlus className="h-5 w-5" />
-            Family Invitation
+            家庭邀请
           </CardTitle>
           <CardDescription>
-            You&apos;ve been invited to join a family on Wardrowbe
+            您已被邀请加入 Wardrowbe 上的一个家庭
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -79,7 +79,7 @@ function InviteContent() {
             disabled={joinByToken.isPending || joinByToken.isSuccess}
           >
             {joinByToken.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Accept Invitation
+            接受邀请
           </Button>
         </CardContent>
       </Card>

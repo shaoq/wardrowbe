@@ -147,10 +147,10 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
   const handleMarkWashed = async () => {
     try {
       await logWash.mutateAsync({ id: item.id });
-      toast.success('Marked as washed');
+      toast.success('已标记为已清洗');
     } catch (error) {
       console.error('Failed to log wash:', error);
-      toast.error('Failed to mark as washed');
+      toast.error('标记清洗状态失败');
     }
   };
 
@@ -159,13 +159,13 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
       await deleteItem.mutateAsync(item.id);
       setShowDeleteConfirm(false);
       onOpenChange(false);
-      toast.success('Item deleted', {
-        description: item.name ? `"${item.name}" has been removed.` : 'Item removed from your wardrobe.',
+      toast.success('单品已删除', {
+        description: item.name ? `"${item.name}" 已移除。` : '单品已从你的衣橱中移除。',
       });
     } catch (error) {
       console.error('Failed to delete item:', error);
-      toast.error('Failed to delete', {
-        description: 'Something went wrong. Please try again.',
+      toast.error('删除失败', {
+        description: '出了点问题，请重试。',
       });
     }
   };
@@ -194,10 +194,10 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
     try {
       await rotateImage.mutateAsync({ id: item.id, direction });
       setImageKey((k) => k + 1);
-      toast.success('Image rotated');
+      toast.success('图片已旋转');
     } catch (error) {
       console.error('Failed to rotate image:', error);
-      toast.error('Failed to rotate image');
+      toast.error('旋转图片失败');
     }
   };
 
@@ -205,10 +205,10 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
     try {
       await removeBackground.mutateAsync({ id: item.id });
       setImageKey((k) => k + 1);
-      toast.success('Background removed');
+      toast.success('背景已移除');
     } catch (error) {
       console.error('Failed to remove background:', error);
-      toast.error('Failed to remove background');
+      toast.error('移除背景失败');
     }
   };
 
@@ -240,7 +240,7 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
                 size="icon"
                 onClick={handleToggleFavorite}
                 disabled={updateItem.isPending}
-                title="Toggle favorite"
+                title="切换收藏"
               >
                 <Heart
                   className={`h-5 w-5 ${
@@ -253,7 +253,7 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
                 size="icon"
                 onClick={() => setShowPairingsDialog(true)}
                 disabled={item.status !== 'ready'}
-                title="Find matching outfits"
+                title="查找搭配穿搭"
               >
                 <Layers className="h-5 w-5" />
               </Button>
@@ -262,7 +262,7 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
                 size="icon"
                 onClick={handleReanalyze}
                 disabled={isAnalyzing}
-                title={isAnalyzing ? 'Analysis in progress...' : 'Re-analyze with AI'}
+                title={isAnalyzing ? '正在分析中...' : '重新用AI分析'}
               >
                 <RefreshCw
                   className={`h-5 w-5 ${isAnalyzing ? 'animate-spin text-primary' : ''}`}
@@ -273,7 +273,7 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
                 size="icon"
                 onClick={() => handleRotate('ccw')}
                 disabled={rotateImage.isPending}
-                title="Rotate left"
+                title="向左旋转"
               >
                 {rotateImage.isPending ? (
                   <Loader2 className="h-5 w-5 animate-spin" />
@@ -286,7 +286,7 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
                 size="icon"
                 onClick={() => handleRotate('cw')}
                 disabled={rotateImage.isPending}
-                title="Rotate right"
+                title="向右旋转"
               >
                 {rotateImage.isPending ? (
                   <Loader2 className="h-5 w-5 animate-spin" />
@@ -300,7 +300,7 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
                   size="icon"
                   onClick={handleRemoveBackground}
                   disabled={removeBackground.isPending || !item.image_url}
-                  title="Remove background"
+                  title="移除背景"
                 >
                   {removeBackground.isPending ? (
                     <Loader2 className="h-5 w-5 animate-spin" />
@@ -313,7 +313,7 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsEditing(!isEditing)}
-                title={isEditing ? 'Cancel editing' : 'Edit item'}
+                title={isEditing ? '取消编辑' : '编辑单品'}
               >
                 {isEditing ? (
                   <X className="h-5 w-5" />
@@ -321,7 +321,7 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
                   <Pencil className="h-5 w-5" />
                 )}
               </Button>
-              <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} className="rounded-full" title="Close">
+              <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} className="rounded-full" title="关闭">
                 <X className="h-5 w-5" />
               </Button>
             </div>
@@ -380,7 +380,7 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
                 {isAnalyzing && (
                   <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-2">
                     <Loader2 className="h-8 w-8 text-white animate-spin" />
-                    <span className="text-white text-sm font-medium">AI Analyzing...</span>
+                    <span className="text-white text-sm font-medium">AI 分析中...</span>
                   </div>
                 )}
               </div>
@@ -391,7 +391,7 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
                     className={`relative w-12 h-12 rounded border-2 overflow-hidden flex-shrink-0 ${activeImageIndex === 0 ? 'border-primary' : 'border-transparent'}`}
                     onClick={() => setActiveImageIndex(0)}
                   >
-                    <Image src={imageUrl} alt="Primary" fill className="object-cover" sizes="48px" />
+                    <Image src={imageUrl} alt="主图" fill className="object-cover" sizes="48px" />
                   </button>
                   {(item.additional_images || []).map((img, idx) => (
                     <div key={img.id} className="relative flex-shrink-0">
@@ -405,7 +405,7 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
                         <div className="absolute -top-1 -right-1 flex gap-0.5">
                           <button
                             className="bg-primary text-primary-foreground rounded-full p-0.5 hover:bg-primary/90"
-                            title="Set as primary"
+                            title="设为主图"
                             onClick={() => {
                               setPrimary.mutate({ itemId: item.id, imageId: img.id });
                               setActiveImageIndex(0);
@@ -415,7 +415,7 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
                           </button>
                           <button
                             className="bg-destructive text-destructive-foreground rounded-full p-0.5 hover:bg-destructive/90"
-                            title="Delete image"
+                            title="删除图片"
                             onClick={() => {
                               deleteImage.mutate({ itemId: item.id, imageId: img.id });
                               if (activeImageIndex > idx) setActiveImageIndex((i) => i - 1);
@@ -460,15 +460,15 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
                 // Edit form
                 <div className="space-y-3">
                   <div className="space-y-2">
-                    <Label>Name</Label>
+                    <Label>名称</Label>
                     <Input
                       value={editForm.name}
                       onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                      placeholder="Item name"
+                      placeholder="单品名称"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Type</Label>
+                    <Label>类型</Label>
                     <Select
                       value={editForm.type}
                       onValueChange={(v) => setEditForm({ ...editForm, type: v })}
@@ -486,22 +486,22 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label>Brand</Label>
+                    <Label>品牌</Label>
                     <Input
                       value={editForm.brand}
                       onChange={(e) => setEditForm({ ...editForm, brand: e.target.value })}
-                      placeholder="Brand name"
+                      placeholder="品牌名称"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Primary Color</Label>
+                    <Label>主色</Label>
                     <div className="flex gap-2">
                       <Select
                         value={editForm.primary_color}
                         onValueChange={(v) => setEditForm({ ...editForm, primary_color: v })}
                       >
                         <SelectTrigger className="flex-1">
-                          <SelectValue placeholder="Select color" />
+                          <SelectValue placeholder="选择颜色" />
                         </SelectTrigger>
                         <SelectContent>
                           {CLOTHING_COLORS.map((c) => (
@@ -524,26 +524,26 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label>Notes</Label>
+                    <Label>备注</Label>
                     <Textarea
                       value={editForm.notes}
                       onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
-                      placeholder="Additional notes..."
+                      placeholder="其他备注..."
                       rows={3}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Wash Interval (wears)</Label>
+                    <Label>清洗间隔（穿着次数）</Label>
                     <Input
                       type="number"
                       min={1}
                       max={100}
                       value={editForm.wash_interval ?? ''}
                       onChange={(e) => setEditForm({ ...editForm, wash_interval: e.target.value ? parseInt(e.target.value) : undefined })}
-                      placeholder={`Default: ${item.effective_wash_interval}`}
+                      placeholder={`默认：${item.effective_wash_interval}`}
                     />
                     <p className="text-xs text-muted-foreground">
-                      Number of wears before this item needs washing. Leave blank for default.
+                      穿着多少次后需要清洗此单品。留空则使用默认值。
                     </p>
                   </div>
                   <div className="flex gap-2 pt-2">
@@ -552,7 +552,7 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
                       className="flex-1"
                       onClick={() => setIsEditing(false)}
                     >
-                      Cancel
+                      取消
                     </Button>
                     <Button
                       className="flex-1"
@@ -562,7 +562,7 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
                       {updateItem.isPending ? (
                         <Loader2 className="h-4 w-4 animate-spin mr-2" />
                       ) : null}
-                      Save
+                      保存
                     </Button>
                   </div>
                 </div>
@@ -598,10 +598,10 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
                       <div className="flex items-center gap-2 text-sm">
                         <Calendar className="h-4 w-4 text-muted-foreground" />
                         <span>
-                          Worn {item.wear_count} time{item.wear_count !== 1 ? 's' : ''}
+                          已穿 {item.wear_count} 次
                           {item.last_worn_at && (
                             <span className="text-muted-foreground">
-                              {' '}• Last: {new Date(item.last_worn_at).toLocaleDateString()}
+                              {' '}• 上次：{new Date(item.last_worn_at).toLocaleDateString('zh-CN')}
                             </span>
                           )}
                         </span>
@@ -614,7 +614,7 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 text-sm font-medium">
                         <Droplets className={`h-4 w-4 ${item.needs_wash ? 'text-amber-500' : 'text-muted-foreground'}`} />
-                        Wash Status
+                        清洗状态
                       </div>
                       <Button
                         variant="outline"
@@ -628,14 +628,14 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
                         ) : (
                           <Droplets className="h-3 w-3 mr-1" />
                         )}
-                        Mark Washed
+                        标记已清洗
                       </Button>
                     </div>
                     <div className="space-y-1.5">
                       <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>Wears since wash: {item.wears_since_wash}/{item.effective_wash_interval}</span>
+                        <span>清洗后穿着次数：{item.wears_since_wash}/{item.effective_wash_interval}</span>
                         {item.needs_wash && (
-                          <span className="text-amber-500 font-medium">Needs washing</span>
+                          <span className="text-amber-500 font-medium">需要清洗</span>
                         )}
                       </div>
                       <Progress
@@ -644,7 +644,7 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
                       />
                       {item.last_washed_at && (
                         <p className="text-xs text-muted-foreground">
-                          Last washed: {new Date(item.last_washed_at).toLocaleDateString()}
+                          上次清洗：{new Date(item.last_washed_at).toLocaleDateString('zh-CN')}
                         </p>
                       )}
                     </div>
@@ -654,12 +654,12 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
                       <Collapsible open={showWashHistory} onOpenChange={setShowWashHistory}>
                         <CollapsibleTrigger className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
                           <ChevronDown className={`h-3 w-3 transition-transform ${showWashHistory ? 'rotate-180' : ''}`} />
-                          Wash history ({washHistory.length})
+                          清洗记录 ({washHistory.length})
                         </CollapsibleTrigger>
                         <CollapsibleContent className="mt-1.5 space-y-1">
                           {washHistory.map((wash) => (
                             <div key={wash.id} className="text-xs text-muted-foreground flex items-center gap-2">
-                              <span>{new Date(wash.washed_at).toLocaleDateString()}</span>
+                              <span>{new Date(wash.washed_at).toLocaleDateString('zh-CN')}</span>
                               {wash.method && <Badge variant="outline" className="text-[10px] h-4">{wash.method}</Badge>}
                               {wash.notes && <span className="truncate">{wash.notes}</span>}
                             </div>
@@ -674,30 +674,30 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
                     <div className="space-y-2 pt-2 border-t">
                       <div className="flex items-center gap-2 text-sm font-medium">
                         <Calendar className="h-4 w-4 text-muted-foreground" />
-                        Wear History
+                        穿着历史
                       </div>
                       <div className="grid grid-cols-2 gap-2 text-xs">
                         <div className="bg-muted/50 rounded-md p-2">
-                          <p className="text-muted-foreground">Total wears</p>
+                          <p className="text-muted-foreground">总穿着次数</p>
                           <p className="font-medium text-sm">{wearStats.total_wears}</p>
                         </div>
                         <div className="bg-muted/50 rounded-md p-2">
-                          <p className="text-muted-foreground">Last worn</p>
+                          <p className="text-muted-foreground">上次穿着</p>
                           <p className="font-medium text-sm">
                             {wearStats.days_since_last_worn === null
-                              ? 'Never'
+                              ? '从未'
                               : wearStats.days_since_last_worn === 0
-                              ? 'Today'
-                              : `${wearStats.days_since_last_worn}d ago`}
+                              ? '今天'
+                              : `${wearStats.days_since_last_worn}天前`}
                           </p>
                         </div>
                         <div className="bg-muted/50 rounded-md p-2">
-                          <p className="text-muted-foreground">Avg/month</p>
+                          <p className="text-muted-foreground">月均穿着</p>
                           <p className="font-medium text-sm">{wearStats.average_wears_per_month}</p>
                         </div>
                         {wearStats.most_common_occasion && (
                           <div className="bg-muted/50 rounded-md p-2">
-                            <p className="text-muted-foreground">Usual occasion</p>
+                            <p className="text-muted-foreground">常用场合</p>
                             <p className="font-medium text-sm capitalize">{wearStats.most_common_occasion}</p>
                           </div>
                         )}
@@ -706,13 +706,13 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
                       {/* Mini bar chart - wear by month */}
                       {Object.keys(wearStats.wear_by_month).length > 0 && (
                         <div className="space-y-1">
-                          <p className="text-xs text-muted-foreground">Last 6 months</p>
+                          <p className="text-xs text-muted-foreground">近6个月</p>
                           <div className="flex items-end gap-1 h-12">
                             {Object.entries(wearStats.wear_by_month).map(([month, count]) => {
                               const maxCount = Math.max(...Object.values(wearStats.wear_by_month), 1);
                               const height = (count / maxCount) * 100;
                               return (
-                                <div key={month} className="flex-1 flex flex-col items-center gap-0.5" title={`${month}: ${count} wears`}>
+                                <div key={month} className="flex-1 flex flex-col items-center gap-0.5" title={`${month}: ${count}次穿着`}>
                                   <div
                                     className="w-full bg-primary/70 rounded-t-sm min-h-[2px]"
                                     style={{ height: `${Math.max(height, 4)}%` }}
@@ -730,13 +730,13 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
                         <Collapsible open={showWearHistory} onOpenChange={setShowWearHistory}>
                           <CollapsibleTrigger className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
                             <ChevronDown className={`h-3 w-3 transition-transform ${showWearHistory ? 'rotate-180' : ''}`} />
-                            Timeline ({wearHistory.length} events)
+                            时间线 ({wearHistory.length}条记录)
                           </CollapsibleTrigger>
                           <CollapsibleContent className="mt-1.5 space-y-1.5">
                             {wearHistory.map((entry) => (
                               <div key={entry.id} className="text-xs flex items-start gap-2">
                                 <span className="text-muted-foreground whitespace-nowrap">
-                                  {new Date(entry.worn_at).toLocaleDateString()}
+                                  {new Date(entry.worn_at).toLocaleDateString('zh-CN')}
                                 </span>
                                 {entry.occasion && (
                                   <Badge variant="outline" className="text-[10px] h-4">{entry.occasion}</Badge>
@@ -775,15 +775,15 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
                     <div className="space-y-2 pt-2 border-t">
                       <div className="flex items-center gap-2 text-sm font-medium">
                         <Sparkles className="h-4 w-4 text-primary" />
-                        AI Analysis
+                        AI 分析
                         {item.ai_confidence !== undefined && item.ai_confidence > 0 && (
                           <Badge variant="secondary" className="text-xs">
-                            {Math.round(item.ai_confidence * 100)}% complete
+                            {Math.round(item.ai_confidence * 100)}% 完成
                           </Badge>
                         )}
                         {item.tags?.logprobs_confidence != null && (
                           <Badge variant="outline" className="text-xs">
-                            {Math.round(item.tags.logprobs_confidence * 100)}% confident
+                            {Math.round(item.tags.logprobs_confidence * 100)}% 置信度
                           </Badge>
                         )}
                       </div>
@@ -825,7 +825,7 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
                         )}
                         {tags.fit && (
                           <Badge variant="outline" className="text-xs">
-                            {tags.fit} fit
+                            {tags.fit} 版型
                           </Badge>
                         )}
                         {tags.occasion?.map((o: string) => (
@@ -850,14 +850,14 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
                   {/* Notes */}
                   {item.notes && (
                     <div className="space-y-1 pt-2 border-t">
-                      <p className="text-sm font-medium">Notes</p>
+                      <p className="text-sm font-medium">备注</p>
                       <p className="text-sm text-muted-foreground">{item.notes}</p>
                     </div>
                   )}
 
                   {/* Metadata */}
                   <div className="text-xs text-muted-foreground pt-2 border-t">
-                    Added {new Date(item.created_at).toLocaleDateString()}
+                    添加于 {new Date(item.created_at).toLocaleDateString('zh-CN')}
                   </div>
                 </div>
               )}
@@ -874,7 +874,7 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
                   onClick={() => setShowDeleteConfirm(true)}
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
-                  Delete this item
+                  删除此单品
                 </Button>
               </div>
             )}
@@ -886,14 +886,14 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
       <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete this item?</AlertDialogTitle>
+            <AlertDialogTitle>删除此单品？</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete &ldquo;{item.name || item.type}&rdquo; from your
-              wardrobe. This action cannot be undone.
+              此操作将永久删除 &ldquo;{item.name || item.type}&rdquo;。
+              此操作无法撤销。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>取消</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
@@ -902,7 +902,7 @@ export function ItemDetailDialog({ item, open, onOpenChange }: ItemDetailDialogP
               {deleteItem.isPending ? (
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
               ) : null}
-              Delete
+              删除
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

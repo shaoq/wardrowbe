@@ -35,20 +35,20 @@ function computeWarnings(items: StudioItem[]): string[] {
 
   if (!hasFullBody) {
     if (hasTop && !hasBottom) {
-      warnings.push('No bottoms selected.');
+      warnings.push('未选择下装。');
     }
     if (hasBottom && !hasTop) {
-      warnings.push('No top selected.');
+      warnings.push('未选择上装。');
     }
   }
 
   const bottomCount = roles.filter((r) => r === 'bottom').length;
   if (bottomCount > 1) {
-    warnings.push('Multiple bottoms selected.');
+    warnings.push('选择了多件下装。');
   }
 
   if (items.length >= 3 && !hasFootwear) {
-    warnings.push('No footwear selected.');
+    warnings.push('未选择鞋履。');
   }
 
   return warnings;
@@ -78,7 +78,7 @@ export function DetailsPanel({
 
   const handleAiAssist = async () => {
     if (items.length === 0 || !occasion) {
-      toast.error('Pick at least one item and an occasion first');
+      toast.error('请先选择至少一件单品和一个场合');
       return;
     }
     setAiLoading(true);
@@ -96,20 +96,18 @@ export function DetailsPanel({
       if (skipped.length > 0) {
         for (const { item, reason } of skipped) {
           toast.info(
-            `Skipped ${item.name || item.type}: ${reason}`
+            `已跳过 ${item.name || item.type}：${reason}`
           );
         }
       } else if (merged.length > items.length) {
         toast.success(
-          `Added ${merged.length - items.length} item${
-            merged.length - items.length === 1 ? '' : 's'
-          } from AI`
+          `从AI建议中添加了 ${merged.length - items.length} 件单品`
         );
       } else {
-        toast.info('AI had no new items to suggest');
+        toast.info('AI没有新的单品建议');
       }
     } catch (error) {
-      toast.error(getErrorMessage(error, 'AI assist failed'));
+      toast.error(getErrorMessage(error, 'AI辅助失败'));
     } finally {
       setAiLoading(false);
     }
@@ -119,29 +117,29 @@ export function DetailsPanel({
     <div className="space-y-6">
       <div className="space-y-2">
         <Label htmlFor="studio-name" className="flex items-center gap-1">
-          Name
+          名称
           <span className="text-xs text-muted-foreground font-normal ml-1">
-            (required for lookbook)
+            （穿搭手册必填）
           </span>
         </Label>
         <Input
           id="studio-name"
           value={name}
           onChange={(e) => onNameChange(e.target.value)}
-          placeholder="Friday brunch"
+          placeholder="周五早午餐"
           maxLength={100}
         />
       </div>
 
       <div className="space-y-2">
         <Label className="flex items-center gap-1">
-          Occasion
-          <span className="text-destructive" aria-label="required">*</span>
+          场合
+          <span className="text-destructive" aria-label="必填">*</span>
         </Label>
         <OccasionChips selected={occasion} onSelect={onOccasionChange} />
         {!occasion && (
           <p className="text-xs text-muted-foreground mt-1">
-            Pick an occasion before saving.
+            保存前请选择一个场合。
           </p>
         )}
       </div>
@@ -171,12 +169,12 @@ export function DetailsPanel({
         {aiLoading ? (
           <>
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            AI is thinking...
+            AI 思考中...
           </>
         ) : (
           <>
             <Sparkles className="h-4 w-4 mr-2" />
-            Let AI finish this
+            让AI完成搭配
           </>
         )}
       </Button>

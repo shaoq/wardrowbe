@@ -28,7 +28,7 @@ interface CloneToLookbookDialogProps {
 
 function defaultCloneName(occasion: string): string {
   const occasionTitle = occasion.charAt(0).toUpperCase() + occasion.slice(1);
-  return `${occasionTitle} — ${format(new Date(), 'MMM d')}`;
+  return `${occasionTitle} — ${format(new Date(), 'M月d日')}`;
 }
 
 export function CloneToLookbookDialog({
@@ -44,16 +44,16 @@ export function CloneToLookbookDialog({
   const handleConfirm = async () => {
     const trimmed = name.trim();
     if (!trimmed) {
-      toast.error('Please enter a name');
+      toast.error('请输入名称');
       return;
     }
     try {
       const result = await clone.mutateAsync({ name: trimmed });
-      toast.success('Saved to lookbook');
+      toast.success('已保存到穿搭手册');
       onSuccess?.(result.id);
       onClose();
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Failed to save to lookbook'));
+      toast.error(getErrorMessage(error, '保存到穿搭手册失败'));
     }
   };
 
@@ -61,31 +61,31 @@ export function CloneToLookbookDialog({
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Save to lookbook</DialogTitle>
+          <DialogTitle>保存到穿搭手册</DialogTitle>
           <DialogDescription>
-            Give this look a name so you can find it later and wear it again.
+            为这身穿搭起个名字，方便以后查找和再次穿着。
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-2 py-2">
-          <Label htmlFor="lookbook-name">Name</Label>
+          <Label htmlFor="lookbook-name">名称</Label>
           <Input
             id="lookbook-name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             maxLength={100}
-            placeholder="Friday brunch"
+            placeholder="周五早午餐"
             autoFocus
           />
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={clone.isPending}>
-            Cancel
+            取消
           </Button>
           <Button
             onClick={handleConfirm}
             disabled={clone.isPending || !name.trim()}
           >
-            {clone.isPending ? 'Saving...' : 'Save'}
+            {clone.isPending ? '保存中...' : '保存'}
           </Button>
         </DialogFooter>
       </DialogContent>

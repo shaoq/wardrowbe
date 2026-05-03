@@ -12,10 +12,22 @@ interface CanvasPanelProps {
   onRemove: (itemId: string) => void;
 }
 
+const ROLE_LABELS_ZH: Record<string, string> = {
+  base_top: '上装',
+  mid_layer: '中间层',
+  outer_layer: '外套',
+  bottom: '下装',
+  full_body: '连体装',
+  footwear: '鞋履',
+  socks: '袜子',
+  neckwear: '领巾',
+  accessory: '配饰',
+};
+
 function roleLabel(type: string): string {
   const role = ITEM_ROLE[type];
   if (!role) return type;
-  return role.replace('_', ' ');
+  return ROLE_LABELS_ZH[role] || role.replace('_', ' ');
 }
 
 export function CanvasPanel({ items, onRemove }: CanvasPanelProps) {
@@ -23,7 +35,7 @@ export function CanvasPanel({ items, onRemove }: CanvasPanelProps) {
     return (
       <div className="min-h-[240px] rounded-lg border-2 border-dashed border-muted-foreground/30 bg-muted/20 flex items-center justify-center p-6">
         <p className="text-sm text-muted-foreground text-center">
-          Tap items below to start building your outfit
+          点击下方单品开始搭配穿搭
         </p>
       </div>
     );
@@ -41,7 +53,7 @@ export function CanvasPanel({ items, onRemove }: CanvasPanelProps) {
                 'absolute -top-2 -right-2 z-10 rounded-full bg-destructive text-destructive-foreground',
                 'p-1 shadow-md hover:bg-destructive/90 focus:outline-none focus:ring-2 focus:ring-destructive/50'
               )}
-              aria-label={`Remove ${item.name || item.type}`}
+              aria-label={`移除 ${item.name || item.type}`}
             >
               <X className="h-3 w-3" />
             </button>
