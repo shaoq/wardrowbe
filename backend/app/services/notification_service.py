@@ -451,13 +451,13 @@ class NotificationDispatcher:
         condition = weather.get("condition", "").lower()
 
         # Day prefix for messages
-        day_label = "Tomorrow" if for_tomorrow else "Today"
+        day_label = "明天" if for_tomorrow else "今天"
 
         # Build title with weather (ASCII-safe for HTTP headers)
         if temp is not None:
-            title = f"{day_label}'s {outfit.occasion.title()} - {temp}C"
+            title = f"{day_label}{outfit.occasion.title()}穿搭 - {temp}C"
         else:
-            title = f"{day_label}'s {outfit.occasion.title()} Outfit"
+            title = f"{day_label}{outfit.occasion.title()}穿搭"
 
         # Build message body with structured data
         parts = []
@@ -478,9 +478,9 @@ class NotificationDispatcher:
 
         # Add styling tip if available
         if outfit.style_notes:
-            parts.append(f"Tip: {outfit.style_notes}")
+            parts.append(f"提示：{outfit.style_notes}")
 
-        message = "\n\n".join(parts) if parts else "Your outfit is ready."
+        message = "\n\n".join(parts) if parts else "您的穿搭已就绪。"
 
         # Choose a single contextual tag based on weather
         tag = "shirt"  # default
@@ -513,8 +513,8 @@ class NotificationDispatcher:
             weather = outfit.weather_data
             weather_text = f" | {weather.get('temperature', '?')}C {weather.get('condition', '')}"
 
-        day_label = "Tomorrow" if for_tomorrow else "Today"
-        greeting = "Good evening" if for_tomorrow else "Good morning"
+        day_label = "明天" if for_tomorrow else "今天"
+        greeting = "晚上好" if for_tomorrow else "早上好"
 
         # Build message text with structured data
         text_parts = []
@@ -534,18 +534,18 @@ class NotificationDispatcher:
 
         # Add styling tip
         if outfit.style_notes:
-            text_parts.append(f"_Tip: {outfit.style_notes}_")
+            text_parts.append(f"_提示：{outfit.style_notes}_")
 
-        attachment_text = "\n\n".join(text_parts) if text_parts else "Your outfit is ready!"
+        attachment_text = "\n\n".join(text_parts) if text_parts else "您的穿搭已就绪！"
 
         attachment = MattermostAttachment(
-            title=f"{day_label}'s Outfit: {outfit.occasion.title()}{weather_text}",
+            title=f"{day_label}的穿搭：{outfit.occasion.title()}{weather_text}",
             text=attachment_text,
             color="#3B82F6",
         )
 
         return MattermostMessage(
-            text=f"{greeting}, {user.display_name}! Here's your outfit suggestion for {day_label.lower()}:",
+            text=f"{greeting}，{user.display_name}！这是您{day_label}的穿搭建议：",
             attachments=[attachment],
         )
 
@@ -555,7 +555,7 @@ class NotificationDispatcher:
         weather_html = ""
         if outfit.weather_data:
             weather = outfit.weather_data
-            forecast_note = " (forecast)" if for_tomorrow else ""
+            forecast_note = "（预报）" if for_tomorrow else ""
             condition = html_mod.escape(str(weather.get("condition", "Unknown")))
             weather_html = f"""
             <p style="color: #6B7280; margin: 0;">
@@ -563,7 +563,7 @@ class NotificationDispatcher:
             </p>
             """
 
-        day_label = "Tomorrow" if for_tomorrow else "Today"
+        day_label = "明天" if for_tomorrow else "今天"
         occasion_escaped = html_mod.escape(outfit.occasion.title())
 
         # Build highlights HTML
@@ -589,13 +589,13 @@ class NotificationDispatcher:
             styling_tip_html = f"""
             <div style="background: #F3F4F6; border-radius: 8px; padding: 12px; margin: 15px 0; border: 1px solid #E5E7EB;">
                 <p style="color: #4B5563; margin: 0;">
-                    <strong style="color: #1F2937;">Tip:</strong> {html_mod.escape(outfit.style_notes)}
+                    <strong style="color: #1F2937;">提示：</strong> {html_mod.escape(outfit.style_notes)}
                 </p>
             </div>
             """
 
         reasoning_escaped = (
-            html_mod.escape(outfit.reasoning) if outfit.reasoning else "Your outfit is ready!"
+            html_mod.escape(outfit.reasoning) if outfit.reasoning else "您的穿搭已就绪！"
         )
 
         html_body = f"""
@@ -612,7 +612,7 @@ class NotificationDispatcher:
 
             <div style="background: #F9FAFB; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
                 <h2 style="color: #1F2937; margin: 0 0 10px 0;">
-                    {day_label}'s Outfit: {occasion_escaped}
+                    {day_label}的穿搭：{occasion_escaped}
                 </h2>
                 {weather_html}
             </div>
@@ -629,15 +629,15 @@ class NotificationDispatcher:
             <div style="text-align: center; margin: 30px 0;">
                 <a href="{self.app_url}/dashboard/history"
                    style="background: #111827; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; display: inline-block; margin: 5px;">
-                    View Outfit
+                    查看穿搭
                 </a>
             </div>
 
             <div style="text-align: center; color: #9CA3AF; font-size: 12px; margin-top: 40px;">
-                <p>Sent by Wardrowbe</p>
+                <p>由 Wardrowbe 发送</p>
                 <p>
                     <a href="{self.app_url}/dashboard/notifications" style="color: #6B7280;">
-                        Manage notification settings
+                        管理通知设置
                     </a>
                 </p>
             </div>
@@ -647,11 +647,11 @@ class NotificationDispatcher:
 
         # Build text body with highlights
         text_parts = [
-            f"Wardrowbe - {day_label}'s Outfit",
+            f"Wardrowbe - {day_label}的穿搭",
             "",
-            f"Occasion: {outfit.occasion.title()}",
+            f"场合：{outfit.occasion.title()}",
             "",
-            outfit.reasoning or "Your outfit is ready!",
+            outfit.reasoning or "您的穿搭已就绪！",
         ]
 
         if highlights:
@@ -661,16 +661,16 @@ class NotificationDispatcher:
 
         if outfit.style_notes:
             text_parts.append("")
-            text_parts.append(f"Tip: {outfit.style_notes}")
+            text_parts.append(f"提示：{outfit.style_notes}")
 
         text_parts.append("")
-        text_parts.append(f"View outfit: {self.app_url}/dashboard/history")
+        text_parts.append(f"查看穿搭：{self.app_url}/dashboard/history")
 
         text_body = "\n".join(text_parts)
 
         return EmailMessage(
             to=to,
-            subject=f"{day_label}'s Outfit: {occasion_escaped}",
+            subject=f"{day_label}的穿搭：{occasion_escaped}",
             html_body=html_body,
             text_body=text_body,
         )
@@ -680,20 +680,20 @@ class NotificationDispatcher:
     ) -> ExpoPushMessage:
         weather = outfit.weather_data or {}
         temp = weather.get("temperature")
-        day_label = "Tomorrow" if for_tomorrow else "Today"
+        day_label = "\u660e\u5929" if for_tomorrow else "\u4eca\u5929"
 
         if temp is not None:
-            title = f"{day_label}'s {outfit.occasion.title()} - {temp}\u00b0C"
+            title = f"{day_label}{outfit.occasion.title()}\u7a7f\u642d - {temp}\u00b0C"
         else:
-            title = f"{day_label}'s {outfit.occasion.title()} Outfit"
+            title = f"{day_label}{outfit.occasion.title()}\u7a7f\u642d"
 
         parts = []
         if outfit.reasoning:
             parts.append(outfit.reasoning)
         if outfit.style_notes:
-            parts.append(f"Tip: {outfit.style_notes}")
+            parts.append(f"\u63d0\u793a\uff1a{outfit.style_notes}")
 
-        body = " \u2022 ".join(parts) if parts else "Your outfit is ready!"
+        body = " \u2022 ".join(parts) if parts else "\u60a8\u7684\u7a7f\u642d\u5df2\u5c31\u7eea\uff01"
 
         return ExpoPushMessage(
             to="",  # Provider uses its stored token

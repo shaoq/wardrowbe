@@ -38,7 +38,8 @@ SINGLE_OUTFIT_FORMAT = (
     '"highlights": ["One short sentence each — vary your reasoning across color, texture, '
     'proportion, occasion, weather, or time of day"], '
     '"styling_tip": "One specific, actionable styling detail — do not suggest rolling up '
-    'sleeves every time, vary your advice"}}'
+    'sleeves every time, vary your advice"}}\n'
+    "Please always reply in Chinese!"
 )
 
 

@@ -404,12 +404,12 @@ async def _check_wash_reminders_inner(ctx: dict):
 
                 item_names = [i.name or i.type for i in items[:5]]
                 count = len(items)
-                summary = ", ".join(item_names)
+                summary = "、".join(item_names)
                 if count > 5:
-                    summary += f" and {count - 5} more"
+                    summary += f"等共 {count} 件"
 
-                title = "Laundry Reminder"
-                body = f"{count} item{'s' if count != 1 else ''} need washing: {summary}"
+                title = "洗衣提醒"
+                body = f"{count} 件衣物需要清洗：{summary}"
 
                 # Send via first enabled channel
                 sent = False
