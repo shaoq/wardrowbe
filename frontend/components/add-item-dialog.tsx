@@ -158,15 +158,15 @@ export function AddItemDialog({ open, onOpenChange }: AddItemDialogProps) {
 
       // Show toast based on results
       if (result.failed === 0) {
-        toast.success(`${result.successful} item${result.successful !== 1 ? 's' : ''} uploaded successfully`);
+        toast.success(`成功上传 ${result.successful} 件单品`);
       } else if (result.successful === 0) {
-        toast.error(`Failed to upload all ${result.failed} item${result.failed !== 1 ? 's' : ''}`);
+        toast.error(`全部 ${result.failed} 件单品上传失败`);
       } else {
-        toast.warning(`${result.successful} uploaded, ${result.failed} failed`);
+        toast.warning(`${result.successful} 件成功，${result.failed} 件失败`);
       }
     } catch (error) {
       console.error('Failed to bulk upload:', error);
-      toast.error('Failed to upload items. Please try again.');
+      toast.error('上传失败，请重试。');
     }
   };
 
@@ -235,16 +235,16 @@ export function AddItemDialog({ open, onOpenChange }: AddItemDialogProps) {
     <Dialog open={open} onOpenChange={handleCloseRequest}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Add Items</DialogTitle>
+          <DialogTitle>添加单品</DialogTitle>
           <DialogDescription>
-            Upload photos of your clothing items
+            上传你的衣物照片
           </DialogDescription>
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="single">Single Item</TabsTrigger>
-            <TabsTrigger value="bulk">Bulk Upload</TabsTrigger>
+            <TabsTrigger value="single">单件上传</TabsTrigger>
+            <TabsTrigger value="bulk">批量上传</TabsTrigger>
           </TabsList>
 
           {/* Single Item Upload */}
@@ -263,18 +263,18 @@ export function AddItemDialog({ open, onOpenChange }: AddItemDialogProps) {
                   <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
                   <p className="mt-2 text-sm text-muted-foreground">
                     {isSingleDragActive
-                      ? 'Drop the image here...'
-                      : 'Drag & drop an image, or tap to select'}
+                      ? '将图片拖放到这里...'
+                      : '拖放图片，或点击选择'}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    JPEG, PNG, WebP, or HEIC
+                    JPEG、PNG、WebP 或 HEIC
                   </p>
                 </div>
               ) : (
                 <div className="relative">
                   <img
                     src={preview}
-                    alt="Preview"
+                    alt="预览"
                     className="w-full h-48 object-cover rounded-lg"
                   />
                   <Button
@@ -291,10 +291,10 @@ export function AddItemDialog({ open, onOpenChange }: AddItemDialogProps) {
 
               <div className="space-y-3">
                 <div className="space-y-2">
-                  <Label htmlFor="type">Type <span className="text-muted-foreground font-normal">(AI will detect if empty)</span></Label>
+                  <Label htmlFor="type">类型 <span className="text-muted-foreground font-normal">（留空则由AI自动识别）</span></Label>
                   <Select value={type} onValueChange={setType}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Let AI detect..." />
+                      <SelectValue placeholder="让AI自动识别..." />
                     </SelectTrigger>
                     <SelectContent>
                       {CLOTHING_TYPES.map((t) => (
@@ -307,31 +307,31 @@ export function AddItemDialog({ open, onOpenChange }: AddItemDialogProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="name">Name (optional)</Label>
+                  <Label htmlFor="name">名称（可选）</Label>
                   <Input
                     id="name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g., Blue Oxford Shirt"
+                    placeholder="例如：蓝色牛津衬衫"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
-                    <Label htmlFor="brand">Brand</Label>
+                    <Label htmlFor="brand">品牌</Label>
                     <Input
                       id="brand"
                       value={brand}
                       onChange={(e) => setBrand(e.target.value)}
-                      placeholder="e.g., J.Crew"
+                      placeholder="例如：J.Crew"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="color">Primary Color</Label>
+                    <Label htmlFor="color">主色</Label>
                     <Select value={primaryColor} onValueChange={setPrimaryColor}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select..." />
+                        <SelectValue placeholder="选择..." />
                       </SelectTrigger>
                       <SelectContent>
                         {CLOTHING_COLORS.map((c) => (
@@ -351,19 +351,19 @@ export function AddItemDialog({ open, onOpenChange }: AddItemDialogProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="notes">Notes</Label>
+                  <Label htmlFor="notes">备注</Label>
                   <Input
                     id="notes"
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Any additional notes..."
+                    placeholder="其他备注..."
                   />
                 </div>
               </div>
 
               <div className="flex justify-end gap-2 pt-2">
                 <Button type="button" variant="outline" onClick={handleCloseRequest}>
-                  Cancel
+                  取消
                 </Button>
                 <Button
                   type="submit"
@@ -372,10 +372,10 @@ export function AddItemDialog({ open, onOpenChange }: AddItemDialogProps) {
                   {createItem.isPending ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Uploading...
+                      上传中...
                     </>
                   ) : (
-                    'Add Item'
+                    '添加单品'
                   )}
                 </Button>
               </div>
@@ -398,8 +398,8 @@ export function AddItemDialog({ open, onOpenChange }: AddItemDialogProps) {
                   <Upload className="mx-auto h-10 w-10 text-muted-foreground" />
                   <p className="mt-2 text-sm text-muted-foreground">
                     {isBulkDragActive
-                      ? 'Drop the images here...'
-                      : 'Drag & drop multiple images, or tap to select'}
+                      ? '将图片拖放到这里...'
+                      : '拖放多张图片，或点击选择'}
                   </p>
                   {/* <p className="mt-1 text-xs text-muted-foreground">
                     Up to 20 images (JPEG, PNG, WebP, HEIC)
@@ -410,7 +410,7 @@ export function AddItemDialog({ open, onOpenChange }: AddItemDialogProps) {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <p className="text-sm font-medium">
-                        {bulkFiles.length} image{bulkFiles.length !== 1 ? 's' : ''} selected
+                        已选择 {bulkFiles.length} 张图片
                       
                       </p>
                       <Button
@@ -419,7 +419,7 @@ export function AddItemDialog({ open, onOpenChange }: AddItemDialogProps) {
                         size="sm"
                         onClick={clearBulkFiles}
                       >
-                        Clear All
+                        清除全部
                       </Button>
                     </div>
 
@@ -450,7 +450,7 @@ export function AddItemDialog({ open, onOpenChange }: AddItemDialogProps) {
                     </ScrollArea>
 
                     <p className="text-xs text-muted-foreground">
-                      All items will be auto-tagged by AI. You can edit details later.
+                      所有单品将由AI自动标注。你可以稍后编辑详情。
                     </p>
                   </div>
                 )}
@@ -460,7 +460,7 @@ export function AddItemDialog({ open, onOpenChange }: AddItemDialogProps) {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Loader2 className="h-4 w-4 animate-spin" />
-                        <span className="text-sm">Uploading {bulkFiles.length} items...</span>
+                        <span className="text-sm">正在上传 {bulkFiles.length} 件单品...</span>
                       </div>
                       <span className="text-sm text-muted-foreground">{bulkCreateItems.uploadProgress}%</span>
                     </div>
@@ -470,7 +470,7 @@ export function AddItemDialog({ open, onOpenChange }: AddItemDialogProps) {
 
                 <div className="flex justify-end gap-2 pt-2">
                   <Button type="button" variant="outline" onClick={handleCloseRequest}>
-                    Cancel
+                    取消
                   </Button>
                   <Button
                     onClick={handleBulkSubmit}
@@ -479,12 +479,12 @@ export function AddItemDialog({ open, onOpenChange }: AddItemDialogProps) {
                     {bulkCreateItems.isPending ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Uploading...
+                        上传中...
                       </>
                     ) : (
                       <>
                         <Upload className="mr-2 h-4 w-4" />
-                        Upload {bulkFiles.length} Item{bulkFiles.length !== 1 ? 's' : ''}
+                        上传 {bulkFiles.length} 件单品
                       </>
                     )}
                   </Button>
@@ -505,11 +505,11 @@ export function AddItemDialog({ open, onOpenChange }: AddItemDialogProps) {
 
                 <div className="text-center">
                   <p className="text-lg font-medium">
-                    {bulkResult.successful} of {bulkResult.total} uploaded successfully
+                    成功上传 {bulkResult.successful} / {bulkResult.total} 件
                   </p>
                   {bulkResult.failed > 0 && (
                     <p className="text-sm text-muted-foreground">
-                      {bulkResult.failed} item{bulkResult.failed !== 1 ? 's' : ''} failed
+                      {bulkResult.failed} 件上传失败
                     </p>
                   )}
                 </div>
@@ -544,10 +544,10 @@ export function AddItemDialog({ open, onOpenChange }: AddItemDialogProps) {
 
                 <div className="flex justify-end gap-2 pt-2">
                   <Button variant="outline" onClick={clearBulkFiles}>
-                    Upload More
+                    继续上传
                   </Button>
                   <Button onClick={handleClose}>
-                    Done
+                    完成
                   </Button>
                 </div>
               </div>
@@ -560,14 +560,14 @@ export function AddItemDialog({ open, onOpenChange }: AddItemDialogProps) {
     <AlertDialog open={showCloseConfirm} onOpenChange={setShowCloseConfirm}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Discard selected images?</AlertDialogTitle>
+          <AlertDialogTitle>放弃已选择的图片？</AlertDialogTitle>
           <AlertDialogDescription>
-            You have {activeTab === 'single' ? '1 image' : `${bulkFiles.length} image${bulkFiles.length !== 1 ? 's' : ''}`} selected that will be lost if you close this dialog.
+            你已选择 {activeTab === 'single' ? '1张图片' : `${bulkFiles.length}张图片`}，关闭对话框后将丢失。
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Keep editing</AlertDialogCancel>
-          <AlertDialogAction onClick={handleClose}>Discard</AlertDialogAction>
+          <AlertDialogCancel>继续编辑</AlertDialogCancel>
+          <AlertDialogAction onClick={handleClose}>放弃</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

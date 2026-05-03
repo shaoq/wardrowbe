@@ -12,7 +12,7 @@ interface OIDCProfile {
 
 const OIDCProvider: OAuthConfig<OIDCProfile> = {
   id: 'oidc',
-  name: 'SSO',
+  name: '单点登录',
   type: 'oauth',
   wellKnown: `${process.env.OIDC_ISSUER_URL}/.well-known/openid-configuration`,
   clientId: process.env.OIDC_CLIENT_ID!,
@@ -37,10 +37,10 @@ const OIDCProvider: OAuthConfig<OIDCProfile> = {
 // Dev credentials provider - for local development only
 const DevCredentialsProvider = CredentialsProvider({
   id: 'dev-credentials',
-  name: 'Dev Login',
+  name: '开发登录',
   credentials: {
-    email: { label: 'Email', type: 'email', placeholder: 'dev@example.com' },
-    name: { label: 'Name', type: 'text', placeholder: 'Dev User' },
+    email: { label: '邮箱', type: 'email', placeholder: 'dev@example.com' },
+    name: { label: '姓名', type: 'text', placeholder: '开发用户' },
   },
   async authorize(credentials) {
     if (!credentials?.email) {
@@ -132,7 +132,7 @@ export const authOptions: NextAuthOptions = {
           }
 
           const errorData = await response.json().catch(() => ({}));
-          const syncError = errorData.detail || `Backend sync failed (${response.status})`;
+          const syncError = errorData.detail || `后端同步失败 (${response.status})`;
           console.error('Failed to sync user to backend:', syncError);
           return {
             ...token,
@@ -146,7 +146,7 @@ export const authOptions: NextAuthOptions = {
         return {
           ...token,
           sub: user.id,
-          syncError: 'Unable to connect to backend server',
+          syncError: '无法连接到后端服务器',
         };
       }
       return token;

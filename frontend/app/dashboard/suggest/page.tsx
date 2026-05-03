@@ -72,9 +72,9 @@ function getWeatherIcon(condition: string, isDay: boolean) {
 // Get time-based greeting
 function getGreeting() {
   const hour = new Date().getHours();
-  if (hour < 12) return 'Good morning';
-  if (hour < 17) return 'Good afternoon';
-  return 'Good evening';
+  if (hour < 12) return '早上好';
+  if (hour < 17) return '下午好';
+  return '晚上好';
 }
 
 // Get weather-based outfit hint
@@ -82,12 +82,12 @@ function getWeatherHint(weather: Weather): string {
   const temp = weather.temperature;
   const condition = weather.condition.toLowerCase();
 
-  if (weather.precipitation_chance > 50) return 'Bring an umbrella or rain jacket';
-  if (temp < 10) return 'Layer up - it\'s quite cold';
-  if (temp < 18) return 'A light jacket would be perfect';
-  if (temp > 28) return 'Keep it light and breathable';
-  if (condition.includes('wind')) return 'Consider something windproof';
-  return 'Great weather for any style';
+  if (weather.precipitation_chance > 50) return '记得带伞或穿雨衣';
+  if (temp < 10) return '多穿几层——天气很冷';
+  if (temp < 18) return '一件薄外套会很合适';
+  if (temp > 28) return '选择轻薄透气的衣物';
+  if (condition.includes('wind')) return '考虑穿防风的衣物';
+  return '天气不错，适合任何风格';
 }
 
 interface WeatherOverride {
@@ -121,9 +121,9 @@ function WeatherCard({ weather, isLoading, temperatureUnit }: { weather?: Weathe
               <MapPin className="h-6 w-6 text-muted-foreground" />
             </div>
             <div>
-              <p className="font-medium">Location not set</p>
+              <p className="font-medium">位置未设置</p>
               <p className="text-sm text-muted-foreground">
-                Set your location in settings for weather-aware suggestions
+                在设置中配置位置，获取基于天气的穿搭推荐
               </p>
             </div>
           </div>
@@ -151,11 +151,11 @@ function WeatherCard({ weather, isLoading, temperatureUnit }: { weather?: Weathe
           <div className="text-right text-sm text-muted-foreground space-y-1">
             <div className="flex items-center gap-1.5 justify-end">
               <Thermometer className="h-3.5 w-3.5" />
-              <span>Feels {displayValue(weather.feels_like, temperatureUnit)}°</span>
+              <span>体感 {displayValue(weather.feels_like, temperatureUnit)}°</span>
             </div>
             <div className="flex items-center gap-1.5 justify-end">
               <Droplets className="h-3.5 w-3.5" />
-              <span>{weather.precipitation_chance}% rain</span>
+              <span>{weather.precipitation_chance}% 降雨</span>
             </div>
             <div className="flex items-center gap-1.5 justify-end">
               <Wind className="h-3.5 w-3.5" />
@@ -216,9 +216,9 @@ function WeatherOverrideSection({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const conditions = [
-    { value: 'sunny', icon: <Sun className="h-4 w-4" />, label: 'Sunny' },
-    { value: 'cloudy', icon: <Cloud className="h-4 w-4" />, label: 'Cloudy' },
-    { value: 'rainy', icon: <CloudRain className="h-4 w-4" />, label: 'Rainy' },
+    { value: 'sunny', icon: <Sun className="h-4 w-4" />, label: '晴天' },
+    { value: 'cloudy', icon: <Cloud className="h-4 w-4" />, label: '多云' },
+    { value: 'rainy', icon: <CloudRain className="h-4 w-4" />, label: '雨天' },
   ] as const;
 
   return (
@@ -226,7 +226,7 @@ function WeatherOverrideSection({
       <CollapsibleTrigger asChild>
         <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
           <ChevronDown className={cn('h-4 w-4 transition-transform', isOpen && 'rotate-180')} />
-          <span>{weather ? 'Weather override active' : 'Override weather'}</span>
+          <span>{weather ? '天气覆盖已启用' : '覆盖天气'}</span>
           {weather && (
             <Badge variant="secondary" className="text-xs">
               {weather.condition} {formatTemp(weather.temperature, temperatureUnit)}
@@ -237,10 +237,10 @@ function WeatherOverrideSection({
       <CollapsibleContent className="pt-4">
         <div className="space-y-4 p-4 rounded-lg bg-muted/50">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Condition</span>
+            <span className="text-sm font-medium">天气状况</span>
             {weather && (
               <Button variant="ghost" size="sm" onClick={() => onChange(null)}>
-                Reset
+                重置
               </Button>
             )}
           </div>
@@ -268,7 +268,7 @@ function WeatherOverrideSection({
           </div>
           {weather && (
             <div className="flex items-center gap-3">
-              <span className="text-sm text-muted-foreground">Temperature</span>
+              <span className="text-sm text-muted-foreground">温度</span>
               <input
                 type="range"
                 min={temperatureUnit === 'fahrenheit' ? 14 : -10}
@@ -322,7 +322,7 @@ function OutfitResult({
           )}
         </div>
         <Button variant="ghost" size="sm" onClick={onNewRequest}>
-          Start over
+          重新开始
         </Button>
       </div>
 
@@ -332,11 +332,11 @@ function OutfitResult({
           <div className="flex items-center gap-1.5">
             <Thermometer className="h-4 w-4" />
             <span>{formatTemp(outfit.weather.temperature, temperatureUnit)}</span>
-            <span className="text-xs opacity-70">(feels {displayValue(outfit.weather.feels_like, temperatureUnit)}°)</span>
+            <span className="text-xs opacity-70">(体感 {displayValue(outfit.weather.feels_like, temperatureUnit)}°)</span>
           </div>
           <div className="flex items-center gap-1.5">
             <Droplets className="h-4 w-4" />
-            <span>{outfit.weather.precipitation_chance}% rain</span>
+            <span>{outfit.weather.precipitation_chance}% 降雨</span>
           </div>
           <Badge variant="outline" className="capitalize">
             {outfit.weather.condition}
@@ -349,7 +349,7 @@ function OutfitResult({
         <div className="bg-gradient-to-r from-primary/10 to-primary/5 p-4 border-b">
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            <h3 className="font-semibold">Your Outfit</h3>
+            <h3 className="font-semibold">您的穿搭</h3>
           </div>
           {outfit.reasoning && (
             <p className="mt-2 text-base font-medium text-foreground">{outfit.reasoning}</p>
@@ -405,7 +405,7 @@ function OutfitResult({
           {outfit.style_notes && (
             <div className="mt-4 p-3 bg-muted rounded-lg border">
               <p className="text-sm text-muted-foreground">
-                <span className="font-medium text-foreground">Tip:</span> {outfit.style_notes}
+                <span className="font-medium text-foreground">提示：</span> {outfit.style_notes}
               </p>
             </div>
           )}
@@ -416,11 +416,11 @@ function OutfitResult({
       <div className="flex gap-3 justify-center">
         <Button variant="outline" size="lg" onClick={onTryAnother} className="gap-2">
           <RefreshCw className="h-4 w-4" />
-          Try Another
+          换一套
         </Button>
         <Button size="lg" onClick={onAccept} className="gap-2">
           <ThumbsUp className="h-4 w-4" />
-          Love it
+          很喜欢
         </Button>
         <Button variant="ghost" size="lg" onClick={onReject} className="px-3">
           <ThumbsDown className="h-4 w-4" />
@@ -480,7 +480,7 @@ export default function SuggestPage() {
       if (err instanceof ApiError) {
         setError(err.message);
       } else {
-        setError('Failed to generate outfit suggestion. Please try again.');
+        setError('生成穿搭推荐失败，请重试。');
       }
       console.error('Suggestion error:', err);
     } finally {
@@ -538,7 +538,7 @@ export default function SuggestPage() {
       <div className="text-center space-y-1">
         <h1 className="text-2xl font-bold tracking-tight">{getGreeting()}</h1>
         <p className="text-muted-foreground">
-          Let&apos;s find the perfect outfit for your day
+          让我们为您找到今天的完美穿搭
         </p>
       </div>
 
@@ -559,7 +559,7 @@ export default function SuggestPage() {
             <CardContent className="p-6 space-y-6">
               {/* Occasion selection */}
               <div className="space-y-3">
-                <h2 className="font-semibold">What&apos;s the occasion?</h2>
+                <h2 className="font-semibold">今天是什么场合？</h2>
                 <OccasionChips
                   selected={selectedOccasion}
                   onSelect={setSelectedOccasion}
@@ -584,12 +584,12 @@ export default function SuggestPage() {
                   {isGenerating ? (
                     <>
                       <Loader2 className="h-5 w-5 animate-spin" />
-                      Creating your look...
+                      正在生成您的穿搭...
                     </>
                   ) : (
                     <>
                       <Sparkles className="h-5 w-5" />
-                      Get Suggestion
+                      获取推荐
                     </>
                   )}
                 </Button>

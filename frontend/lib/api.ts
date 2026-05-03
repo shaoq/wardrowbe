@@ -17,7 +17,7 @@ class ApiError extends Error {
 }
 
 class NetworkError extends Error {
-  constructor(message: string = 'Network error. Please check your connection.') {
+  constructor(message: string = '网络错误，请检查您的网络连接。') {
     super(message);
     this.name = 'NetworkError';
   }
@@ -60,16 +60,16 @@ async function fetchApi<T>(endpoint: string, options: FetchOptions = {}): Promis
     });
   } catch (err) {
     if (!navigator.onLine) {
-      throw new NetworkError('You appear to be offline. Please check your connection.');
+      throw new NetworkError('您似乎已离线，请检查网络连接。');
     }
-    throw new NetworkError('Unable to connect to server. Please try again.');
+    throw new NetworkError('无法连接到服务器，请稍后重试。');
   }
 
   if (!response.ok) {
     const data = await response.json().catch(() => ({}));
     const message = (typeof data.detail === 'string' ? data.detail : data.detail?.message)
       || data.error?.message
-      || 'An error occurred';
+      || '发生了一个错误';
     throw new ApiError(message, response.status, data);
   }
 

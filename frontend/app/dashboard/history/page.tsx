@@ -25,13 +25,12 @@ function EmptyHistory() {
       <div className="rounded-full bg-muted p-6 mb-4">
         <Calendar className="h-12 w-12 text-muted-foreground" />
       </div>
-      <h3 className="text-lg font-semibold mb-2">No recommendation history</h3>
+      <h3 className="text-lg font-semibold mb-2">暂无推荐记录</h3>
       <p className="text-muted-foreground mb-6 max-w-sm">
-        Your outfit recommendation history will appear here once you start
-        receiving suggestions.
+        当您开始接收穿搭建议后，推荐记录将显示在这里。
       </p>
       <Button variant="outline" asChild>
-        <a href="/dashboard/suggest">Get Your First Suggestion</a>
+        <a href="/dashboard/suggest">获取您的第一个建议</a>
       </Button>
     </div>
   );
@@ -42,7 +41,7 @@ function EmptyDate({ date }: { date: Date }) {
     <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
       <Calendar className="h-8 w-8 text-muted-foreground mb-2" />
       <p className="text-sm text-muted-foreground">
-        No outfits for {format(date, 'MMMM d, yyyy')}
+        {format(date, 'yyyy年M月d日')}没有穿搭
       </p>
     </div>
   );
@@ -131,7 +130,7 @@ export default function HistoryPage() {
   if (isError) {
     return (
       <div className="text-center py-8 text-red-500">
-        Failed to load history. Please try again.
+        加载历史记录失败，请重试。
       </div>
     );
   }
@@ -141,9 +140,9 @@ export default function HistoryPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">History</h1>
+          <h1 className="text-2xl font-bold tracking-tight">历史</h1>
           <p className="text-muted-foreground">
-            View your past outfit recommendations
+            查看您过去的穿搭推荐
           </p>
         </div>
       </div>
@@ -152,27 +151,27 @@ export default function HistoryPage() {
       <div className="flex gap-3 flex-wrap">
         <Select value={filters.occasion || 'all'} onValueChange={handleOccasionChange}>
           <SelectTrigger className="w-[150px]">
-            <SelectValue placeholder="All occasions" />
+            <SelectValue placeholder="所有场合" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All occasions</SelectItem>
-            <SelectItem value="casual">Casual</SelectItem>
-            <SelectItem value="office">Office</SelectItem>
-            <SelectItem value="formal">Formal</SelectItem>
-            <SelectItem value="date">Date</SelectItem>
-            <SelectItem value="workout">Workout</SelectItem>
+            <SelectItem value="all">所有场合</SelectItem>
+            <SelectItem value="casual">休闲</SelectItem>
+            <SelectItem value="office">办公</SelectItem>
+            <SelectItem value="formal">正式</SelectItem>
+            <SelectItem value="date">约会</SelectItem>
+            <SelectItem value="workout">运动</SelectItem>
           </SelectContent>
         </Select>
         <Select value={filters.status || 'all'} onValueChange={handleStatusChange}>
           <SelectTrigger className="w-[150px]">
-            <SelectValue placeholder="All status" />
+            <SelectValue placeholder="所有状态" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All status</SelectItem>
-            <SelectItem value="accepted">Accepted</SelectItem>
-            <SelectItem value="rejected">Rejected</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="viewed">Viewed</SelectItem>
+            <SelectItem value="all">所有状态</SelectItem>
+            <SelectItem value="accepted">已接受</SelectItem>
+            <SelectItem value="rejected">已拒绝</SelectItem>
+            <SelectItem value="pending">待处理</SelectItem>
+            <SelectItem value="viewed">已查看</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -203,10 +202,10 @@ export default function HistoryPage() {
           {selectedDate && (
             <div className="border-b pb-3">
               <h2 className="text-lg font-semibold">
-                {format(selectedDate, 'EEEE, MMMM d')}
+                {format(selectedDate, 'M月d日 EEEE')}
               </h2>
               <p className="text-sm text-muted-foreground">
-                {selectedDateOutfits.length} outfit{selectedDateOutfits.length !== 1 ? 's' : ''}
+                {selectedDateOutfits.length}套穿搭
               </p>
             </div>
           )}

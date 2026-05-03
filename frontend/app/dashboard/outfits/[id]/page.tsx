@@ -60,25 +60,25 @@ export default function OutfitDetailPage() {
   const handleWearToday = async () => {
     try {
       const result = await wearTodayMutation.mutateAsync({});
-      toast.success('Added to today');
+      toast.success('已添加到今天');
       router.push(`/dashboard/outfits/${result.id}`);
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Failed to wear today'));
+      toast.error(getErrorMessage(error, '标记今天穿着失败'));
     }
   };
 
   const handleDelete = async () => {
-    if (!confirm('Delete this outfit? This cannot be undone.')) return;
+    if (!confirm('确定要删除此穿搭吗？此操作无法撤销。')) return;
     try {
       await deleteMutation.mutateAsync(outfit.id);
-      toast.success('Outfit deleted');
+      toast.success('穿搭已删除');
       router.push('/dashboard/outfits');
     } catch (error) {
-      toast.error(getErrorMessage(error, 'Failed to delete'));
+      toast.error(getErrorMessage(error, '删除失败'));
     }
   };
 
-  const title = outfit.name || `${outfit.occasion} outfit`;
+  const title = outfit.name || `${outfit.occasion} 穿搭`;
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -86,7 +86,7 @@ export default function OutfitDetailPage() {
         <Button variant="ghost" size="sm" asChild>
           <Link href="/dashboard/outfits">
             <ChevronLeft className="h-4 w-4 mr-1" />
-            Back to Outfits
+            返回穿搭列表
           </Link>
         </Button>
       </div>
@@ -105,7 +105,7 @@ export default function OutfitDetailPage() {
               ? formatDistanceToNow(parseISO(outfit.scheduled_for), {
                   addSuffix: true,
                 })
-              : 'Lookbook template'}
+              : '穿搭手册模板'}
           </span>
         </div>
       </div>
@@ -115,7 +115,7 @@ export default function OutfitDetailPage() {
       <Card>
         <CardContent className="p-4">
           <h2 className="text-sm font-semibold text-muted-foreground mb-3 uppercase tracking-wide">
-            Items ({outfit.items.length})
+            单品 ({outfit.items.length})
           </h2>
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
             {outfit.items.map((item) => (
@@ -158,20 +158,20 @@ export default function OutfitDetailPage() {
             ) : (
               <CalendarPlus className="h-4 w-4 mr-2" />
             )}
-            Wear today
+            今天穿着
           </Button>
         )}
         {!isTemplate && (
           <Button variant="outline" onClick={() => setCloneDialogOpen(true)}>
             <BookmarkPlus className="h-4 w-4 mr-2" />
-            Save to lookbook
+            保存到穿搭手册
           </Button>
         )}
         {!isWorn && (
           <Button variant="outline" asChild>
             <Link href={`/dashboard/outfits/new?edit=${outfit.id}`}>
               <Pencil className="h-4 w-4 mr-2" />
-              Edit
+              编辑
             </Link>
           </Button>
         )}
@@ -182,7 +182,7 @@ export default function OutfitDetailPage() {
           disabled={deleteMutation.isPending}
         >
           <Trash2 className="h-4 w-4 mr-2" />
-          Delete
+          删除
         </Button>
       </div>
 
@@ -190,8 +190,7 @@ export default function OutfitDetailPage() {
         <Card>
           <CardContent className="p-4">
             <h2 className="text-sm font-semibold text-muted-foreground mb-3 uppercase tracking-wide">
-              Worn {wearInstancesData.total} time
-              {wearInstancesData.total === 1 ? '' : 's'}
+              已穿 {wearInstancesData.total} 次
             </h2>
             <div className="space-y-2">
               {wearInstancesData.outfits.map((wear) => (
@@ -203,7 +202,7 @@ export default function OutfitDetailPage() {
                   <span className="text-sm">
                     {wear.scheduled_for
                       ? format(parseISO(wear.scheduled_for), 'MMM d, yyyy')
-                      : 'Undated'}
+                      : '未设置日期'}
                   </span>
                   {wear.feedback?.rating && (
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -217,7 +216,7 @@ export default function OutfitDetailPage() {
             {wearInstancesData.has_more && (
               <Button variant="link" size="sm" asChild className="mt-2 px-0">
                 <Link href={`/dashboard/outfits?filter=worn&cloned_from=${outfit.id}`}>
-                  See all
+                  查看全部
                 </Link>
               </Button>
             )}
@@ -228,7 +227,7 @@ export default function OutfitDetailPage() {
       {isTemplate && wearInstancesData && wearInstancesData.total === 0 && (
         <Alert className="border-muted">
           <AlertDescription className="text-sm text-muted-foreground">
-            This look has not been worn yet. Click &quot;Wear today&quot; to log it.
+            此造型尚未穿着。点击「今天穿着」进行记录。
           </AlertDescription>
         </Alert>
       )}

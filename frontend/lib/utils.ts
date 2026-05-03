@@ -63,9 +63,9 @@ export function getDaysSinceDateInTimezone(dateStr: string, timezone: string = '
  */
 export function formatWornAgo(dateStr: string, timezone: string = 'UTC'): string {
   const days = getDaysSinceDateInTimezone(dateStr, timezone);
-  if (days === 0) return 'Worn today';
-  if (days === 1) return 'Worn yesterday';
-  return `Worn ${days}d ago`;
+  if (days === 0) return '今天穿过';
+  if (days === 1) return '昨天穿过';
+  return `${days}天前穿过`;
 }
 
 /**

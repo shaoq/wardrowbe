@@ -46,9 +46,9 @@ export function GeneratePairingsDialog({
         numPairings,
       });
       setGeneratedPairings(result.pairings);
-      toast.success(`Generated ${result.generated} outfit${result.generated !== 1 ? 's' : ''}!`);
+      toast.success(`已生成 ${result.generated} 套穿搭！`);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to generate pairings';
+      const message = error instanceof Error ? error.message : '生成搭配失败';
       toast.error(message);
     }
   };
@@ -74,10 +74,10 @@ export function GeneratePairingsDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            Find Matching Outfits
+            查找匹配穿搭
           </DialogTitle>
           <DialogDescription>
-            AI will create complete outfits featuring this item
+            AI 将以这件单品为中心创建完整穿搭
           </DialogDescription>
         </DialogHeader>
 
@@ -108,7 +108,7 @@ export function GeneratePairingsDialog({
             {/* Number of pairings selector */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label>Number of outfits</Label>
+                <Label>穿搭数量</Label>
                 <span className="text-sm font-medium text-primary">{numPairings}</span>
               </div>
               <Slider
@@ -120,7 +120,7 @@ export function GeneratePairingsDialog({
                 className="w-full"
               />
               <p className="text-xs text-muted-foreground">
-                More outfits = more variety, but takes longer to generate
+                穿搭越多，变化越多，但生成时间也更长
               </p>
             </div>
           </div>
@@ -132,10 +132,10 @@ export function GeneratePairingsDialog({
             </div>
             <div>
               <p className="font-medium text-lg">
-                {generatedPairings.length} outfit{generatedPairings.length !== 1 ? 's' : ''} created!
+                已创建 {generatedPairings.length} 套穿搭！
               </p>
               <p className="text-sm text-muted-foreground mt-1">
-                View them in the Pairings section
+                在搭配版块中查看
               </p>
             </div>
 
@@ -174,7 +174,7 @@ export function GeneratePairingsDialog({
           {!generatedPairings ? (
             <>
               <Button variant="outline" onClick={handleClose}>
-                Cancel
+                取消
               </Button>
               <Button
                 onClick={handleGenerate}
@@ -183,12 +183,12 @@ export function GeneratePairingsDialog({
                 {generatePairings.isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Generating...
+                    生成中...
                   </>
                 ) : (
                   <>
                     <Sparkles className="h-4 w-4 mr-2" />
-                    Generate Outfits
+                    生成穿搭
                   </>
                 )}
               </Button>
@@ -196,10 +196,10 @@ export function GeneratePairingsDialog({
           ) : (
             <>
               <Button variant="outline" onClick={handleClose}>
-                Close
+                关闭
               </Button>
               <Button onClick={handleViewPairings}>
-                View Pairings
+                查看搭配
               </Button>
             </>
           )}

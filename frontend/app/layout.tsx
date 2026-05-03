@@ -1,15 +1,15 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
+import { Noto_Sans_SC } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
 
 export const dynamic = 'force-dynamic';
 
-const inter = Inter({ subsets: ['latin'] });
+const notoSansSC = Noto_Sans_SC({ subsets: ['latin'], weight: ['400', '500', '600', '700'] });
 
 export const metadata: Metadata = {
   title: 'Wardrowbe',
-  description: 'AI-powered wardrobe management and outfit recommendations',
+  description: 'AI 驱动的智能衣橱管理与穿搭推荐',
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
@@ -37,8 +37,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+    <html lang="zh-CN" suppressHydrationWarning>
+      <body className={notoSansSC.className}>
         <Providers>{children}</Providers>
       </body>
     </html>

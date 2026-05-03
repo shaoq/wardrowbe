@@ -37,11 +37,11 @@ import { api, setAccessToken } from '@/lib/api';
 import { CLOTHING_COLORS, CLOTHING_TYPES, StyleProfile } from '@/lib/types';
 
 const STEPS = [
-  { id: 'welcome', title: 'Welcome', icon: Shirt },
-  { id: 'family', title: 'Family', icon: Users },
-  { id: 'location', title: 'Location', icon: MapPin },
-  { id: 'preferences', title: 'Style', icon: Palette },
-  { id: 'upload', title: 'First Item', icon: Camera },
+  { id: 'welcome', title: '欢迎', icon: Shirt },
+  { id: 'family', title: '家庭', icon: Users },
+  { id: 'location', title: '位置', icon: MapPin },
+  { id: 'preferences', title: '风格', icon: Palette },
+  { id: 'upload', title: '第一件单品', icon: Camera },
 ];
 
 function StepIndicator({ currentStep }: { currentStep: number }) {
@@ -92,10 +92,10 @@ function WelcomeStep({ onNext }: { onNext: () => void }) {
       </div>
       <div>
         <h1 className="text-3xl font-bold tracking-tight">
-          Welcome to Wardrowbe{user?.display_name ? `, ${user.display_name.split(' ')[0]}` : ''}!
+          欢迎使用 Wardrowbe{user?.display_name ? `，${user.display_name.split(' ')[0]}` : ''}！
         </h1>
         <p className="text-muted-foreground mt-2 text-lg">
-          Let&apos;s get your digital wardrobe set up in just a few steps.
+          只需几个简单步骤，即可设置您的数字衣柜。
         </p>
       </div>
       <div className="grid gap-4 text-left max-w-md mx-auto">
@@ -104,9 +104,9 @@ function WelcomeStep({ onNext }: { onNext: () => void }) {
             <Camera className="w-4 h-4 text-primary" />
           </div>
           <div>
-            <p className="font-medium">Photograph your clothes</p>
+            <p className="font-medium">拍摄您的衣物</p>
             <p className="text-sm text-muted-foreground">
-              Our AI will automatically tag colors, styles, and more
+              我们的AI将自动识别颜色、风格等信息
             </p>
           </div>
         </div>
@@ -115,9 +115,9 @@ function WelcomeStep({ onNext }: { onNext: () => void }) {
             <Palette className="w-4 h-4 text-primary" />
           </div>
           <div>
-            <p className="font-medium">Get personalized outfits</p>
+            <p className="font-medium">获取个性化穿搭</p>
             <p className="text-sm text-muted-foreground">
-              Daily recommendations based on weather and your style
+              根据天气和您的风格提供每日推荐
             </p>
           </div>
         </div>
@@ -126,15 +126,15 @@ function WelcomeStep({ onNext }: { onNext: () => void }) {
             <Users className="w-4 h-4 text-primary" />
           </div>
           <div>
-            <p className="font-medium">Share with family</p>
+            <p className="font-medium">与家人分享</p>
             <p className="text-sm text-muted-foreground">
-              Everyone can have their own personalized wardrobe
+              每个人都可以拥有自己的个性化衣柜
             </p>
           </div>
         </div>
       </div>
       <Button size="lg" onClick={onNext}>
-        Get Started
+        开始使用
         <ArrowRight className="ml-2 w-5 h-5" />
       </Button>
     </div>
@@ -153,10 +153,10 @@ function FamilyStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => void
     if (!familyName.trim()) return;
     try {
       await createFamily.mutateAsync(familyName.trim());
-      toast.success('Family created!');
+      toast.success('家庭已创建！');
       onNext();
     } catch (error) {
-      toast.error('Failed to create family. Please try again.');
+      toast.error('创建家庭失败，请重试。');
     }
   };
 
@@ -164,19 +164,19 @@ function FamilyStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => void
     if (!inviteCode.trim()) return;
     try {
       await joinFamily.mutateAsync(inviteCode.trim().toUpperCase());
-      toast.success('Joined family!');
+      toast.success('已加入家庭！');
       onNext();
     } catch (error) {
-      toast.error('Invalid invite code. Please check and try again.');
+      toast.error('邀请码无效，请检查后重试。');
     }
   };
 
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold tracking-tight">Family Setup</h2>
+        <h2 className="text-2xl font-bold tracking-tight">家庭设置</h2>
         <p className="text-muted-foreground mt-1">
-          Create or join a family to share the wardrobe experience
+          创建或加入一个家庭，共享衣柜体验
         </p>
       </div>
 
@@ -188,17 +188,17 @@ function FamilyStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => void
           onClick={() => setMode('create')}
         >
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Create Family</CardTitle>
-            <CardDescription>Start a new family</CardDescription>
+            <CardTitle className="text-lg">创建家庭</CardTitle>
+            <CardDescription>创建一个新家庭</CardDescription>
           </CardHeader>
           {mode === 'create' && (
             <CardContent>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="family-name">Family Name</Label>
+                  <Label htmlFor="family-name">家庭名称</Label>
                   <Input
                     id="family-name"
-                    placeholder="e.g., The Smith Family"
+                    placeholder="例如，史密斯一家"
                     value={familyName}
                     onChange={(e) => setFamilyName(e.target.value)}
                   />
@@ -209,7 +209,7 @@ function FamilyStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => void
                   disabled={!familyName.trim() || createFamily.isPending}
                 >
                   {createFamily.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Create Family
+                  创建家庭
                 </Button>
               </div>
             </CardContent>
@@ -223,17 +223,17 @@ function FamilyStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => void
           onClick={() => setMode('join')}
         >
           <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Join Family</CardTitle>
-            <CardDescription>Use an invite code</CardDescription>
+            <CardTitle className="text-lg">加入家庭</CardTitle>
+            <CardDescription>使用邀请码加入</CardDescription>
           </CardHeader>
           {mode === 'join' && (
             <CardContent>
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="invite-code">Invite Code</Label>
+                  <Label htmlFor="invite-code">邀请码</Label>
                   <Input
                     id="invite-code"
-                    placeholder="e.g., ABC123XY"
+                    placeholder="例如，ABC123XY"
                     value={inviteCode}
                     onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
                     className="font-mono uppercase"
@@ -245,10 +245,10 @@ function FamilyStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => void
                   disabled={!inviteCode.trim() || joinFamily.isPending}
                 >
                   {joinFamily.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Join Family
+                  加入家庭
                 </Button>
                 {joinFamily.isError && (
-                  <p className="text-sm text-destructive">Invalid invite code</p>
+                  <p className="text-sm text-destructive">邀请码无效</p>
                 )}
               </div>
             </CardContent>
@@ -258,7 +258,7 @@ function FamilyStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => void
 
       <div className="text-center">
         <Button variant="ghost" onClick={onSkip}>
-          Skip for now
+          暂时跳过
         </Button>
       </div>
     </div>
@@ -281,7 +281,7 @@ function LocationStep({
 
   const detectLocation = () => {
     if (!navigator.geolocation) {
-      toast.error('Geolocation is not supported by your browser');
+      toast.error('您的浏览器不支持地理定位');
       return;
     }
 
@@ -315,7 +315,7 @@ function LocationStep({
       },
       (error) => {
         setDetecting(false);
-        toast.error('Could not detect location. Please enter manually.');
+        toast.error('无法检测位置，请手动输入。');
       }
     );
   };
@@ -340,10 +340,10 @@ function LocationStep({
       }
 
       await api.patch('/users/me', updateData);
-      toast.success('Location saved!');
+      toast.success('位置已保存！');
       onNext();
     } catch (error) {
-      toast.error('Failed to save location. Please try again.');
+      toast.error('保存位置失败，请重试。');
     } finally {
       setSaving(false);
     }
@@ -352,9 +352,9 @@ function LocationStep({
   return (
     <div className="space-y-6 max-w-md mx-auto">
       <div className="text-center">
-        <h2 className="text-2xl font-bold tracking-tight">Your Location</h2>
+        <h2 className="text-2xl font-bold tracking-tight">您的位置</h2>
         <p className="text-muted-foreground mt-1">
-          We use this to provide weather-appropriate outfit suggestions
+          我们将根据位置为您提供适合天气的穿搭推荐
         </p>
       </div>
 
@@ -371,7 +371,7 @@ function LocationStep({
             ) : (
               <MapPin className="mr-2 h-4 w-4" />
             )}
-            Detect My Location
+            检测我的位置
           </Button>
 
           <div className="relative">
@@ -379,15 +379,15 @@ function LocationStep({
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">Or enter manually</span>
+              <span className="bg-background px-2 text-muted-foreground">或手动输入</span>
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="location">City/Location Name</Label>
+            <Label htmlFor="location">城市/位置名称</Label>
             <Input
               id="location"
-              placeholder="e.g., New York, NY"
+              placeholder="例如，北京市朝阳区"
               value={locationName}
               onChange={(e) => setLocationName(e.target.value)}
             />
@@ -399,14 +399,14 @@ function LocationStep({
             disabled={!locationName.trim() || saving}
           >
             {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Continue
+            继续
           </Button>
         </CardContent>
       </Card>
 
       <div className="text-center">
         <Button variant="ghost" onClick={onSkip}>
-          Skip for now
+          暂时跳过
         </Button>
       </div>
     </div>
@@ -454,28 +454,36 @@ function PreferencesStep({ onNext, onSkip }: { onNext: () => void; onSkip: () =>
         color_avoid: avoidColors,
         style_profile: styleProfile,
       });
-      toast.success('Style preferences saved!');
+      toast.success('风格偏好已保存！');
       onNext();
     } catch (error) {
-      toast.error('Failed to save preferences. Please try again.');
+      toast.error('保存偏好失败，请重试。');
     } finally {
       setSaving(false);
     }
   };
 
+  const STYLE_LABELS: Record<string, string> = {
+    casual: '休闲',
+    formal: '正式',
+    sporty: '运动',
+    minimalist: '简约',
+    bold: '大胆',
+  };
+
   return (
     <div className="space-y-6 max-w-2xl mx-auto">
       <div className="text-center">
-        <h2 className="text-2xl font-bold tracking-tight">Your Style</h2>
+        <h2 className="text-2xl font-bold tracking-tight">您的风格</h2>
         <p className="text-muted-foreground mt-1">
-          Help us understand your style preferences
+          帮助我们了解您的风格偏好
         </p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Favorite Colors</CardTitle>
-          <CardDescription>Tap colors you love wearing</CardDescription>
+          <CardTitle className="text-lg">喜爱的颜色</CardTitle>
+          <CardDescription>点击您喜欢穿的颜色</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">
@@ -512,8 +520,8 @@ function PreferencesStep({ onNext, onSkip }: { onNext: () => void; onSkip: () =>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Colors to Avoid</CardTitle>
-          <CardDescription>Tap colors you prefer not to wear</CardDescription>
+          <CardTitle className="text-lg">避免的颜色</CardTitle>
+          <CardDescription>点击您不喜欢穿的颜色</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">
@@ -552,14 +560,14 @@ function PreferencesStep({ onNext, onSkip }: { onNext: () => void; onSkip: () =>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Style Profile</CardTitle>
-          <CardDescription>Adjust how much you prefer each style</CardDescription>
+          <CardTitle className="text-lg">风格档案</CardTitle>
+          <CardDescription>调整您对每种风格的偏好程度</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {Object.entries(styleProfile).map(([key, value]) => (
             <div key={key} className="space-y-2">
               <div className="flex justify-between items-center">
-                <Label className="capitalize">{key}</Label>
+                <Label>{STYLE_LABELS[key] || key}</Label>
                 <span className="text-sm text-muted-foreground">{value}%</span>
               </div>
               <Slider
@@ -578,11 +586,11 @@ function PreferencesStep({ onNext, onSkip }: { onNext: () => void; onSkip: () =>
 
       <div className="flex justify-between">
         <Button variant="ghost" onClick={onSkip}>
-          Skip for now
+          暂时跳过
         </Button>
         <Button onClick={handleContinue} disabled={saving}>
           {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Continue
+          继续
         </Button>
       </div>
     </div>
@@ -633,19 +641,19 @@ function UploadStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => void
 
     try {
       await createItem.mutateAsync(formData);
-      toast.success('Item added to your wardrobe!');
+      toast.success('单品已添加到您的衣柜！');
       onNext();
     } catch (error) {
-      toast.error('Failed to upload item. Please try again.');
+      toast.error('上传单品失败，请重试。');
     }
   };
 
   return (
     <div className="space-y-6 max-w-md mx-auto">
       <div className="text-center">
-        <h2 className="text-2xl font-bold tracking-tight">Add Your First Item</h2>
+        <h2 className="text-2xl font-bold tracking-tight">添加您的第一件单品</h2>
         <p className="text-muted-foreground mt-1">
-          Take a photo or upload an image of a clothing item
+          拍摄照片或上传一件衣物的图片
         </p>
       </div>
 
@@ -666,15 +674,15 @@ function UploadStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => void
                 className="w-full"
                 onClick={clearFile}
               >
-                Choose Different Photo
+                选择其他照片
               </Button>
             </div>
           ) : (
             <label className="flex flex-col items-center justify-center w-full aspect-square border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
               <div className="flex flex-col items-center justify-center pt-5 pb-6">
                 <Camera className="w-12 h-12 text-muted-foreground mb-4" />
-                <p className="mb-2 text-sm font-medium">Click to upload or take photo</p>
-                <p className="text-xs text-muted-foreground">PNG, JPG, or HEIC</p>
+                <p className="mb-2 text-sm font-medium">点击上传或拍照</p>
+                <p className="text-xs text-muted-foreground">PNG、JPG 或 HEIC</p>
               </div>
               <input
                 type="file"
@@ -688,10 +696,10 @@ function UploadStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => void
 
           {file && (
             <div className="space-y-2">
-              <Label htmlFor="item-type">What type of clothing is this?</Label>
+              <Label htmlFor="item-type">这是什么类型的衣物？</Label>
               <Select value={itemType} onValueChange={setItemType}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select type..." />
+                  <SelectValue placeholder="选择类型..." />
                 </SelectTrigger>
                 <SelectContent>
                   {CLOTHING_TYPES.map((type) => (
@@ -710,14 +718,14 @@ function UploadStep({ onNext, onSkip }: { onNext: () => void; onSkip: () => void
             disabled={!file || !itemType || createItem.isPending}
           >
             {createItem.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Add to Wardrobe
+            添加到衣柜
           </Button>
         </CardContent>
       </Card>
 
       <div className="text-center">
         <Button variant="ghost" onClick={onSkip}>
-          Skip for now
+          暂时跳过
         </Button>
       </div>
     </div>
@@ -733,20 +741,20 @@ function CompleteStep({ onFinish, completing }: { onFinish: () => void; completi
         </div>
       </div>
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">You&apos;re All Set!</h1>
+        <h1 className="text-3xl font-bold tracking-tight">一切就绪！</h1>
         <p className="text-muted-foreground mt-2 text-lg">
-          Your wardrobe is ready. Start adding clothes and get personalized outfit suggestions!
+          您的衣柜已准备就绪。开始添加衣物，获取个性化穿搭推荐吧！
         </p>
       </div>
       <Button size="lg" onClick={onFinish} disabled={completing}>
         {completing ? (
           <>
             <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-            Finishing...
+            完成中...
           </>
         ) : (
           <>
-            Go to Dashboard
+            前往仪表盘
             <ArrowRight className="ml-2 w-5 h-5" />
           </>
         )}
@@ -778,7 +786,7 @@ export default function OnboardingPage() {
       router.push('/dashboard');
     } catch (error) {
       setCompleting(false);
-      toast.error('Failed to complete setup. Please try again.');
+      toast.error('完成设置失败，请重试。');
     }
   };
 
@@ -831,7 +839,7 @@ export default function OnboardingPage() {
           <div className="flex justify-center mt-4">
             <Button variant="ghost" onClick={prevStep}>
               <ChevronLeft className="mr-2 h-4 w-4" />
-              Back
+              返回
             </Button>
           </div>
         )}

@@ -26,13 +26,12 @@ function EmptyPairings() {
       <div className="rounded-full bg-muted p-6 mb-4">
         <Layers className="h-12 w-12 text-muted-foreground" />
       </div>
-      <h3 className="text-lg font-semibold mb-2">No pairings yet</h3>
+      <h3 className="text-lg font-semibold mb-2">暂无搭配</h3>
       <p className="text-muted-foreground mb-6 max-w-sm">
-        Select an item from your wardrobe and use &ldquo;Find Pairings&rdquo; to discover
-        outfit combinations that work well together.
+        从衣柜中选择一件单品，使用「查找搭配」来发现搭配效果好的穿搭组合。
       </p>
       <Button variant="outline" asChild>
-        <a href="/dashboard/wardrobe">Go to Wardrobe</a>
+        <a href="/dashboard/wardrobe">前往衣柜</a>
       </Button>
     </div>
   );
@@ -84,7 +83,7 @@ export default function PairingsPage() {
   if (isError) {
     return (
       <div className="text-center py-8 text-red-500">
-        Failed to load pairings. Please try again.
+        加载搭配失败，请重试。
       </div>
     );
   }
@@ -96,10 +95,10 @@ export default function PairingsPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
             <Sparkles className="h-6 w-6 text-primary" />
-            Pairings
+            搭配
           </h1>
           <p className="text-muted-foreground">
-            AI-generated outfit combinations built around your items
+            基于您的单品AI生成的穿搭组合
           </p>
         </div>
       </div>
@@ -108,10 +107,10 @@ export default function PairingsPage() {
       <div className="flex gap-3 flex-wrap items-center">
         <Select value={sourceType || 'all'} onValueChange={handleSourceTypeChange}>
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All item types" />
+            <SelectValue placeholder="所有单品类型" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All item types</SelectItem>
+            <SelectItem value="all">所有单品类型</SelectItem>
             {itemTypes?.map((type) => (
               <SelectItem key={type.type} value={type.type}>
                 {type.type} ({type.count})
@@ -121,7 +120,7 @@ export default function PairingsPage() {
         </Select>
         {data && (
           <p className="text-sm text-muted-foreground">
-            {data.total} pairing{data.total !== 1 ? 's' : ''}
+            {data.total} 个搭配
           </p>
         )}
       </div>
@@ -151,7 +150,7 @@ export default function PairingsPage() {
                 variant="outline"
                 onClick={() => setPage((p) => p + 1)}
               >
-                Load More
+                加载更多
               </Button>
             </div>
           )}

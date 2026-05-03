@@ -64,13 +64,13 @@ import { useUserProfile } from '@/lib/hooks/use-user';
 import { OCCASIONS } from '@/lib/types';
 
 const DAYS = [
-  { value: 0, label: 'Monday' },
-  { value: 1, label: 'Tuesday' },
-  { value: 2, label: 'Wednesday' },
-  { value: 3, label: 'Thursday' },
-  { value: 4, label: 'Friday' },
-  { value: 5, label: 'Saturday' },
-  { value: 6, label: 'Sunday' },
+  { value: 0, label: '周一' },
+  { value: 1, label: '周二' },
+  { value: 2, label: '周三' },
+  { value: 3, label: '周四' },
+  { value: 4, label: '周五' },
+  { value: 5, label: '周六' },
+  { value: 6, label: '周日' },
 ];
 
 const CHANNEL_ICONS: Record<string, React.ReactNode> = {
@@ -80,9 +80,9 @@ const CHANNEL_ICONS: Record<string, React.ReactNode> = {
 };
 
 const CHANNEL_LABELS: Record<string, string> = {
-  ntfy: 'ntfy Push',
+  ntfy: 'ntfy推送',
   mattermost: 'Mattermost',
-  email: 'Email',
+  email: '邮箱',
 };
 
 function ChannelCard({
@@ -110,7 +110,7 @@ function ChannelCard({
               <p className="font-medium">{CHANNEL_LABELS[setting.channel]}</p>
               <p className="text-sm text-muted-foreground">
                 {setting.channel === 'ntfy' && setting.config.topic}
-                {setting.channel === 'mattermost' && 'Webhook configured'}
+                {setting.channel === 'mattermost' && 'Webhook已配置'}
                 {setting.channel === 'email' && setting.config.address}
               </p>
             </div>
@@ -129,9 +129,9 @@ function ChannelCard({
             ) : (
               <Send className="h-4 w-4 mr-1" />
             )}
-            Test
+            测试
           </Button>
-          <Badge variant="secondary">Priority {setting.priority}</Badge>
+          <Badge variant="secondary">优先级 {setting.priority}</Badge>
           <Button
             variant="ghost"
             size="sm"
@@ -204,15 +204,15 @@ function AddChannelDialog({
 
     // Frontend validation
     if (channel === 'ntfy' && !config.topic?.trim()) {
-      toast.error('Topic is required for ntfy');
+      toast.error('ntfy必须填写主题');
       return;
     }
     if (channel === 'mattermost' && !config.webhook_url?.trim()) {
-      toast.error('Webhook URL is required for Mattermost');
+      toast.error('Mattermost必须填写Webhook URL');
       return;
     }
     if (channel === 'email' && !config.address?.trim()) {
-      toast.error('Email address is required');
+      toast.error('必须填写邮箱地址');
       return;
     }
 
@@ -244,20 +244,20 @@ function AddChannelDialog({
       <DialogTrigger asChild>
         <Button>
           <Plus className="h-4 w-4 mr-2" />
-          Add Channel
+          添加渠道
         </Button>
       </DialogTrigger>
       <DialogContent>
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Add Notification Channel</DialogTitle>
+            <DialogTitle>添加通知渠道</DialogTitle>
             <DialogDescription>
-              Configure a new way to receive outfit recommendations.
+              配置接收穿搭推荐的新方式。
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Channel Type</Label>
+              <Label>渠道类型</Label>
               <Select
                 value={channel}
                 onValueChange={(v: 'ntfy' | 'mattermost' | 'email') => {
@@ -269,9 +269,10 @@ function AddChannelDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ntfy">ntfy Push Notifications</SelectItem>
-                  <SelectItem value="mattermost">Mattermost</SelectItem>
-                  <SelectItem value="email">Email</SelectItem>
+                  <SelectItem value="ntfy">ntfy推送通知</SelectItem>
+                  <SelectItem value="mattermost">Mattermost通知</SelectItem>
+                  <SelectItem value="email">邮箱</SelectItem>
+
                 </SelectContent>
               </Select>
             </div>
@@ -279,7 +280,7 @@ function AddChannelDialog({
             {channel === 'ntfy' && (
               <>
                 <div className="space-y-2">
-                  <Label htmlFor="server">Server URL</Label>
+                  <Label htmlFor="server">服务器URL</Label>
                   <Input
                     id="server"
                     value={config.server || 'https://ntfy.sh'}
@@ -288,7 +289,7 @@ function AddChannelDialog({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="topic">Topic *</Label>
+                  <Label htmlFor="topic">主题 *</Label>
                   <Input
                     id="topic"
                     value={config.topic || ''}
@@ -297,11 +298,11 @@ function AddChannelDialog({
                     required
                   />
                   <p className="text-xs text-muted-foreground">
-                    Subscribe to this topic in your ntfy app
+                    在您的ntfy应用中订阅此主题
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="token">Access Token</Label>
+                  <Label htmlFor="token">访问令牌</Label>
                   <Input
                     id="token"
                     type="password"
@@ -310,7 +311,7 @@ function AddChannelDialog({
                     placeholder="tk_..."
                   />
                   <p className="text-xs text-muted-foreground">
-                    Required if your ntfy server uses authentication
+                    如果您的ntfy服务器使用身份验证则需要填写
                   </p>
                 </div>
               </>
@@ -318,7 +319,7 @@ function AddChannelDialog({
 
             {channel === 'mattermost' && (
               <div className="space-y-2">
-                <Label htmlFor="webhook">Webhook URL *</Label>
+                <Label htmlFor="webhook">Webhook 地址 *</Label>
                 <Input
                   id="webhook"
                   value={config.webhook_url || ''}
@@ -327,14 +328,14 @@ function AddChannelDialog({
                   required
                 />
                 <p className="text-xs text-muted-foreground">
-                  Create an incoming webhook in Mattermost settings
+                  在Mattermost设置中创建一个传入Webhook
                 </p>
               </div>
             )}
 
             {channel === 'email' && (
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address *</Label>
+                <Label htmlFor="email">邮箱地址 *</Label>
                 <Input
                   id="email"
                   type="email"
@@ -348,16 +349,16 @@ function AddChannelDialog({
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={closeAndReset} disabled={isLoading}>
-              Cancel
+              取消
             </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  Adding...
+                  添加中...
                 </>
               ) : (
-                'Add Channel'
+                '添加渠道'
               )}
             </Button>
           </DialogFooter>
@@ -417,12 +418,12 @@ function ScheduleCard({
             onCheckedChange={onToggleDayBefore}
           />
           <Label htmlFor={`daybefore-${schedule.id}`} className="text-sm cursor-pointer">
-            Notify day before
+            提前一天通知
           </Label>
         </div>
         {schedule.notify_day_before && (
           <span className="text-xs text-muted-foreground">
-            {notifyDay?.label} evening
+            {notifyDay?.label}晚上
           </span>
         )}
       </div>
@@ -488,20 +489,20 @@ function AddScheduleDialog({
       <DialogTrigger asChild>
         <Button variant="outline">
           <Plus className="h-4 w-4 mr-2" />
-          Add Schedule
+          添加日程
         </Button>
       </DialogTrigger>
       <DialogContent>
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Add Schedule</DialogTitle>
+            <DialogTitle>添加日程</DialogTitle>
             <DialogDescription>
-              Set up when you want to receive outfit recommendations.
+              设置您希望何时收到穿搭推荐。
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Day</Label>
+              <Label>日期</Label>
               <Select
                 value={String(dayOfWeek)}
                 onValueChange={(v) => setDayOfWeek(parseInt(v))}
@@ -519,7 +520,7 @@ function AddScheduleDialog({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="time">Time</Label>
+              <Label htmlFor="time">时间</Label>
               <Input
                 id="time"
                 type="time"
@@ -528,7 +529,7 @@ function AddScheduleDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label>Occasion</Label>
+              <Label>场合</Label>
               <Select value={occasion} onValueChange={setOccasion}>
                 <SelectTrigger>
                   <SelectValue />
@@ -544,9 +545,9 @@ function AddScheduleDialog({
             </div>
             <div className="flex items-center justify-between p-3 border rounded-lg bg-muted/50">
               <div className="space-y-0.5">
-                <Label htmlFor="notify-day-before">Notify day before</Label>
+                <Label htmlFor="notify-day-before">提前一天通知</Label>
                 <p className="text-xs text-muted-foreground">
-                  Get notification the evening before with tomorrow&apos;s forecast
+                  在前一天晚上收到通知，附带明天的天气预报
                 </p>
               </div>
               <Switch
@@ -557,22 +558,22 @@ function AddScheduleDialog({
             </div>
             {notifyDayBefore && (
               <p className="text-sm text-muted-foreground bg-muted/30 p-2 rounded">
-                You&apos;ll receive the notification on <strong>{notifyDay?.label}</strong> at {time} for your <strong>{DAYS.find(d => d.value === dayOfWeek)?.label}</strong> outfit.
+                您将在<strong>{notifyDay?.label}</strong>的{time}收到<strong>{DAYS.find(d => d.value === dayOfWeek)?.label}</strong>穿搭的通知。
               </p>
             )}
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={closeAndReset} disabled={isLoading}>
-              Cancel
+              取消
             </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  Adding...
+                  添加中...
                 </>
               ) : (
-                'Add Schedule'
+                '添加日程'
               )}
             </Button>
           </DialogFooter>
@@ -602,9 +603,9 @@ export default function NotificationsPage() {
   const handleCreateChannel = async (data: ChannelFormData): Promise<void> => {
     try {
       await createSetting.mutateAsync(data);
-      toast.success('Notification channel added');
+      toast.success('通知渠道已添加');
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Failed to add channel';
+      const message = error instanceof Error ? error.message : '添加渠道失败';
       toast.error(message);
       throw error; // Re-throw so dialog knows it failed
     }
@@ -613,9 +614,9 @@ export default function NotificationsPage() {
   const handleCreateSchedule = async (data: ScheduleFormData): Promise<void> => {
     try {
       await createSchedule.mutateAsync(data);
-      toast.success('Schedule added');
+      toast.success('日程已添加');
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Failed to add schedule';
+      const message = error instanceof Error ? error.message : '添加日程失败';
       toast.error(message);
       throw error; // Re-throw so dialog knows it failed
     }
@@ -625,9 +626,9 @@ export default function NotificationsPage() {
     setTestingId(id);
     try {
       const result = await testSetting.mutateAsync(id);
-      toast.success(result.message || 'Test notification sent');
+      toast.success(result.message || '测试通知已发送');
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Test failed';
+      const message = error instanceof Error ? error.message : '测试失败';
       toast.error(message);
     } finally {
       setTestingId(null);
@@ -637,9 +638,9 @@ export default function NotificationsPage() {
   const handleToggleChannel = async (id: string, enabled: boolean) => {
     try {
       await updateSetting.mutateAsync({ id, data: { enabled } });
-      toast.success(enabled ? 'Channel enabled' : 'Channel disabled');
+      toast.success(enabled ? '渠道已启用' : '渠道已禁用');
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Failed to update';
+      const message = error instanceof Error ? error.message : '更新失败';
       toast.error(message);
     }
   };
@@ -647,9 +648,9 @@ export default function NotificationsPage() {
   const handleToggleSchedule = async (id: string, enabled: boolean) => {
     try {
       await updateSchedule.mutateAsync({ id, data: { enabled } });
-      toast.success(enabled ? 'Schedule enabled' : 'Schedule disabled');
+      toast.success(enabled ? '日程已启用' : '日程已禁用');
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Failed to update';
+      const message = error instanceof Error ? error.message : '更新失败';
       toast.error(message);
     }
   };
@@ -657,9 +658,9 @@ export default function NotificationsPage() {
   const handleToggleDayBefore = async (id: string, notify_day_before: boolean) => {
     try {
       await updateSchedule.mutateAsync({ id, data: { notify_day_before } });
-      toast.success(notify_day_before ? 'Will notify day before' : 'Will notify same day');
+      toast.success(notify_day_before ? '将提前一天通知' : '将在当天通知');
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Failed to update';
+      const message = error instanceof Error ? error.message : '更新失败';
       toast.error(message);
     }
   };
@@ -670,13 +671,13 @@ export default function NotificationsPage() {
     try {
       if (deleteConfirm.type === 'channel') {
         await deleteSetting.mutateAsync(deleteConfirm.id);
-        toast.success('Channel deleted');
+        toast.success('渠道已删除');
       } else {
         await deleteSchedule.mutateAsync(deleteConfirm.id);
-        toast.success('Schedule deleted');
+        toast.success('日程已删除');
       }
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Failed to delete';
+      const message = error instanceof Error ? error.message : '删除失败';
       toast.error(message);
     } finally {
       setDeleteConfirm(null);
@@ -686,9 +687,9 @@ export default function NotificationsPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Notifications</h1>
+        <h1 className="text-2xl font-bold tracking-tight">通知</h1>
         <p className="text-muted-foreground">
-          Configure how and when you receive outfit recommendations
+          配置您接收穿搭推荐的方式和时间
         </p>
       </div>
 
@@ -699,10 +700,10 @@ export default function NotificationsPage() {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Settings2 className="h-5 w-5" />
-                Notification Channels
+                通知渠道
               </CardTitle>
               <CardDescription>
-                Add channels to receive your daily outfit recommendations
+                添加渠道以接收每日穿搭推荐
               </CardDescription>
             </div>
             <AddChannelDialog onAdd={handleCreateChannel} isLoading={createSetting.isPending} userEmail={userProfile?.email} />
@@ -717,8 +718,8 @@ export default function NotificationsPage() {
           ) : settings?.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Bell className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No notification channels configured</p>
-              <p className="text-sm">Add a channel to start receiving outfit suggestions</p>
+              <p>尚未配置通知渠道</p>
+              <p className="text-sm">添加一个渠道以开始接收穿搭建议</p>
             </div>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2">
@@ -744,10 +745,10 @@ export default function NotificationsPage() {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Clock className="h-5 w-5" />
-                Delivery Schedule
+                投递日程
               </CardTitle>
               <CardDescription>
-                Set when you want to receive outfit recommendations each day
+                设置您每天希望何时收到穿搭推荐
               </CardDescription>
             </div>
             <AddScheduleDialog
@@ -765,8 +766,8 @@ export default function NotificationsPage() {
           ) : schedules?.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
               <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No schedules configured</p>
-              <p className="text-sm">Add a schedule to receive daily outfit suggestions</p>
+              <p>尚未配置日程</p>
+              <p className="text-sm">添加一个日程以接收每日穿搭建议</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -793,16 +794,16 @@ export default function NotificationsPage() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Delete {deleteConfirm?.type === 'channel' ? 'Notification Channel' : 'Schedule'}?
+              删除{deleteConfirm?.type === 'channel' ? '通知渠道' : '日程'}？
             </AlertDialogTitle>
             <AlertDialogDescription>
               {deleteConfirm?.type === 'channel'
-                ? 'This will remove the notification channel. You can add it back later.'
-                : 'This will remove the schedule. You can create a new one later.'}
+                ? '这将移除通知渠道。您可以稍后重新添加。'
+                : '这将移除日程。您可以稍后创建新的日程。'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>取消</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirmed}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
@@ -810,10 +811,10 @@ export default function NotificationsPage() {
               {deleteSetting.isPending || deleteSchedule.isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  Deleting...
+                  删除中...
                 </>
               ) : (
-                'Delete'
+                '删除'
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

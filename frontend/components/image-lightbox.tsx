@@ -63,7 +63,7 @@ export function ImageLightbox() {
               }}
             >
               <Shirt size={16} />
-              Open in Wardrobe
+              在衣橱中打开
               <ChevronRight size={16} />
             </Link>
           ) : null,

@@ -81,7 +81,7 @@ export function BulkActionToolbar({
           <Square className="h-5 w-5 text-muted-foreground" />
         )}
         <span className="text-sm font-medium whitespace-nowrap hidden sm:inline">
-          {isAllSelected ? 'All' : 'Select all'}
+          {isAllSelected ? '全选' : '全选'}
         </span>
       </div>
 
@@ -89,21 +89,21 @@ export function BulkActionToolbar({
 
       <span className="text-sm text-muted-foreground whitespace-nowrap shrink-0">
         {selectedCount === 0 ? (
-          <span className="hidden sm:inline">None selected</span>
+          <span className="hidden sm:inline">未选择</span>
         ) : selection.mode === 'all' && selection.excludedIds.size > 0 ? (
           <>
             <span className="sm:hidden">{totalItems - selection.excludedIds.size}</span>
-            <span className="hidden sm:inline">All except {selection.excludedIds.size}</span>
+            <span className="hidden sm:inline">除 {selection.excludedIds.size} 项外全选</span>
           </>
         ) : selection.mode === 'all' ? (
           <>
-            <span className="sm:hidden">All ({totalItems})</span>
-            <span className="hidden sm:inline">All {totalItems} selected</span>
+            <span className="sm:hidden">全部 ({totalItems})</span>
+            <span className="hidden sm:inline">已选全部 {totalItems} 项</span>
           </>
         ) : (
           <>
             <span className="sm:hidden">{selectedCount}</span>
-            <span className="hidden sm:inline">{selectedCount} selected</span>
+            <span className="hidden sm:inline">已选 {selectedCount} 项</span>
           </>
         )}
       </span>
@@ -115,7 +115,7 @@ export function BulkActionToolbar({
             size="icon"
             onClick={onClear}
             className="text-muted-foreground h-8 w-8 shrink-0"
-            aria-label="Clear selection"
+            aria-label="清除选择"
           >
             <X className="h-4 w-4" />
           </Button>
@@ -126,7 +126,7 @@ export function BulkActionToolbar({
             className="h-8 w-8 shrink-0"
             onClick={onReanalyze}
             disabled={isReanalyzing}
-            aria-label="Re-analyze"
+            aria-label="重新分析"
           >
             {isReanalyzing ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -136,7 +136,7 @@ export function BulkActionToolbar({
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button variant="destructive" size="icon" className="h-8 w-8 shrink-0" disabled={isDeleting} aria-label="Delete">
+              <Button variant="destructive" size="icon" className="h-8 w-8 shrink-0" disabled={isDeleting} aria-label="删除">
                 {isDeleting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
@@ -147,22 +147,22 @@ export function BulkActionToolbar({
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>
-                  Delete {selection.mode === 'all' && selection.excludedIds.size === 0
-                    ? `all ${totalItems}`
-                    : selectedCount} items?
+                  删除 {selection.mode === 'all' && selection.excludedIds.size === 0
+                    ? `全部 ${totalItems}`
+                    : selectedCount} 件单品？
                 </AlertDialogTitle>
                 <AlertDialogDescription>
-                  This will permanently delete the selected items and their images.
-                  This action cannot be undone.
+                  此操作将永久删除所选单品及其图片。
+                  此操作无法撤销。
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogCancel>取消</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={onDelete}
                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 >
-                  Delete
+                  删除
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
@@ -181,7 +181,7 @@ export function BulkActionToolbar({
               className="h-8 w-8 hidden sm:flex"
               disabled={page === 1}
               onClick={() => onPageChange(1)}
-              aria-label="First page"
+              aria-label="第一页"
             >
               <ChevronsLeft className="h-4 w-4" />
             </Button>
@@ -191,7 +191,7 @@ export function BulkActionToolbar({
               className="h-8 w-8"
               disabled={page === 1}
               onClick={() => onPageChange(page - 1)}
-              aria-label="Previous page"
+              aria-label="上一页"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -204,7 +204,7 @@ export function BulkActionToolbar({
               className="h-8 w-8"
               disabled={page >= totalPages}
               onClick={() => onPageChange(page + 1)}
-              aria-label="Next page"
+              aria-label="下一页"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -214,7 +214,7 @@ export function BulkActionToolbar({
               className="h-8 w-8 hidden sm:flex"
               disabled={page >= totalPages}
               onClick={() => onPageChange(totalPages)}
-              aria-label="Last page"
+              aria-label="最后一页"
             >
               <ChevronsRight className="h-4 w-4" />
             </Button>
