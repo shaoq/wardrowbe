@@ -11,7 +11,7 @@ from app.models.item import ClothingItem, ItemStatus
 from app.models.outfit import FamilyOutfitRating, Outfit, OutfitItem, OutfitSource, OutfitStatus
 from app.models.user import User
 from app.services.ai_service import AIService
-from app.utils.clothing import deduplicate_by_body_slot
+from app.utils.clothing import deduplicate_by_body_slot, validate_generated_outfit
 from app.utils.prompts import load_prompt
 from app.utils.timezone import get_user_today
 
@@ -226,31 +226,62 @@ class PairingService:
         for item in available_items:
             item_type_map[item.id] = (item.type or "").lower()
 
+        # Load existing pairing fingerprints for this source item
+        existing_result = await self.db.execute(
+            select(Outfit)
+            .where(
+                and_(
+                    Outfit.user_id == user.id,
+                    Outfit.source == OutfitSource.pairing,
+                    Outfit.source_item_id == source_item_id,
+                )
+            )
+            .options(selectinload(Outfit.items))
+        )
+        existing_outfits = list(existing_result.scalars().all())
+        existing_fingerprints: set[str] = set()
+        for existing in existing_outfits:
+            ids = sorted(str(oi.item_id) for oi in existing.items)
+            existing_fingerprints.add("|".join(ids))
+        logger.info(
+            f"Found {len(existing_fingerprints)} existing pairing fingerprints for source item {source_item_id}"
+        )
+
         for pairing in pairings_data[:num_pairings]:
             # Get item numbers from the pairing
             selected_numbers = pairing.get("items", [])
-            valid_ids = []
+            raw_ids = []
 
             for num in selected_numbers:
                 try:
                     num_int = int(num)
                     if num_int in number_map:
-                        valid_ids.append(number_map[num_int])
+                        raw_ids.append(number_map[num_int])
                     else:
                         logger.warning(f"AI selected invalid item number: {num}")
                 except (ValueError, TypeError):
                     logger.warning(f"AI returned non-numeric item: {num}")
 
             # Ensure source item is included
-            if source_item.id not in valid_ids:
-                valid_ids.insert(0, source_item.id)
+            if source_item.id not in raw_ids:
+                raw_ids.insert(0, source_item.id)
 
-            # Deduplicate by body slot (e.g. prevent shorts + pants)
-            valid_ids = deduplicate_by_body_slot(valid_ids, item_type_map)
+            # Shared validation: exact dedup + body-slot cleanup
+            validated = validate_generated_outfit(raw_ids, item_type_map)
+            for w in validated.warnings:
+                logger.warning(f"Pairing validation: {w}")
+            valid_ids = validated.cleaned_ids
 
             if len(valid_ids) < 2:
-                logger.warning("Pairing has too few valid items, skipping")
+                logger.warning("Pairing has too few valid items after cleanup, skipping")
                 continue
+
+            # Check against existing pairings for this source item
+            new_fingerprint = "|".join(sorted(str(iid) for iid in valid_ids))
+            if new_fingerprint in existing_fingerprints:
+                logger.info("Skipping duplicate pairing combination for source item")
+                continue
+            existing_fingerprints.add(new_fingerprint)
 
             # Create outfit
             outfit = Outfit(

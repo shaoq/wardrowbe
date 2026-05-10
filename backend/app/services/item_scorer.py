@@ -270,9 +270,6 @@ def score_items(
     good_pairs: dict[UUID, list[UUID]],
     recently_worn_dates: dict[UUID, date],
 ) -> list[ScoredItem]:
-    if len(items) < MIN_ITEMS_FOR_SCORING:
-        return [ScoredItem(item=item) for item in items]
-
     avoid_days = 7
     if preferences and preferences.avoid_repeat_days is not None:
         avoid_days = preferences.avoid_repeat_days

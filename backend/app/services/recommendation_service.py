@@ -26,7 +26,11 @@ from app.services.ai_service import AIService
 from app.services.item_scorer import get_season, score_items
 from app.services.suggestion_cache import pop_suggestion, push_suggestions
 from app.services.weather_service import WeatherData, WeatherService, WeatherServiceError
-from app.utils.clothing import deduplicate_by_body_slot
+from app.utils.clothing import (
+    ITEM_ROLE,
+    deduplicate_by_body_slot,
+    validate_generated_outfit,
+)
 from app.utils.prompts import load_prompt
 from app.utils.timezone import get_user_today
 
@@ -522,35 +526,34 @@ class RecommendationService:
         scheduled_date: date | None = None,
     ) -> Outfit:
         selected_numbers = outfit_data.get("items", [])
-        valid_ids = []
+        raw_ids = []
 
         for num in selected_numbers:
             try:
                 num_int = int(num)
                 if num_int in number_map:
-                    valid_ids.append(number_map[num_int])
+                    raw_ids.append(number_map[num_int])
                 else:
                     logger.warning(f"AI selected invalid item number: {num}")
             except (ValueError, TypeError):
                 logger.warning(f"AI returned non-numeric item: {num}")
 
-        seen = set()
-        unique_ids = []
-        for item_id in valid_ids:
-            if item_id not in seen:
-                seen.add(item_id)
-                unique_ids.append(item_id)
-        valid_ids = unique_ids
-
-        if not valid_ids:
+        if not raw_ids:
             raise AIRecommendationError("AI did not select any valid items")
 
-        # Deduplicate by body slot (e.g. prevent shorts + pants)
+        # Look up item types for validation
         items_result = await self.db.execute(
-            select(ClothingItem.id, ClothingItem.type).where(ClothingItem.id.in_(valid_ids))
+            select(ClothingItem.id, ClothingItem.type).where(ClothingItem.id.in_(raw_ids))
         )
         item_type_map = {row.id: (row.type or "").lower() for row in items_result}
-        valid_ids = deduplicate_by_body_slot(valid_ids, item_type_map)
+
+        # Shared validation: exact dedup + body-slot cleanup + completeness
+        validated = validate_generated_outfit(
+            raw_ids, item_type_map, require_completeness=True
+        )
+        for w in validated.warnings:
+            logger.warning(f"Outfit validation: {w}")
+        valid_ids = validated.cleaned_ids
 
         reasoning = outfit_data.get("headline") or outfit_data.get("reasoning")
         style_notes = outfit_data.get("styling_tip") or outfit_data.get("style_notes")
@@ -807,6 +810,49 @@ class RecommendationService:
 
             # Multi-outfit parse
             outfit_list = self._parse_multi_outfit_response(result.content)
+
+            # Filter duplicates by key-piece fingerprint
+            seen_key_fingerprints: set[str] = set()
+            def _key_fingerprint(od: dict) -> str:
+                items_raw = od.get("items", [])
+                ids = []
+                for n in items_raw:
+                    try:
+                        n_int = int(n)
+                        if n_int in number_map:
+                            ids.append(number_map[n_int])
+                    except (ValueError, TypeError):
+                        pass
+                key_parts: list[str] = []
+                for iid in ids:
+                    # Resolve item type from scored items or DB; use number_map reverse lookup
+                    pass
+                # Build from item types if available, otherwise just use item ids for key roles
+                key_ids = []
+                for iid in ids:
+                    # We need the item type — derive from scored items
+                    for si in scored:
+                        item = si.item if hasattr(si, "item") else si
+                        if item.id == iid:
+                            role = ITEM_ROLE.get((item.type or "").lower())
+                            if role in ("full_body", "base_top", "bottom"):
+                                key_ids.append(f"{role}:{iid}")
+                            break
+                return "|".join(sorted(key_ids))
+
+            unique_outfits = []
+            for od in outfit_list:
+                fp = _key_fingerprint(od)
+                if fp and fp in seen_key_fingerprints:
+                    logger.info("Skipping duplicate key-piece recommendation option")
+                    continue
+                if fp:
+                    seen_key_fingerprints.add(fp)
+                unique_outfits.append(od)
+            outfit_list = unique_outfits
+
+            if not outfit_list:
+                raise AIRecommendationError("All generated outfits were duplicates")
 
             first = outfit_list[0]
             first["_ai_model"] = result.model

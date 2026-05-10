@@ -28,7 +28,7 @@ Proportion and silhouette:
 - If user body measurements are provided, consider proportions: taller frames carry volume better, broader builds benefit from structured pieces, and item sizes should be compatible with the user's measurements
 
 Layering (when weather calls for it):
-- Think in layers: base (shirt/tee), mid (sweater/cardigan/light jacket), outer (coat/heavy jacket)
+- Think in layers: base top (shirt/tee/sweater), mid layer (cardigan/vest), outer layer (jacket/blazer/coat/hoodie)
 - Each layer should be visible and contribute to the look, not just warmth
 - Layered outfits should work when the outer layer is removed too
 
@@ -43,11 +43,13 @@ AVAILABLE ITEMS:
 {items_text}
 
 RULES:
-- Pick exactly ONE top (shirt/blouse/sweater/t-shirt) + ONE bottom (pants/jeans/skirt/shorts) + ONE shoes
-- OR pick ONE dress + ONE shoes
+- Pick exactly ONE base top (shirt/blouse/sweater/t-shirt/polo/tank-top) + ONE bottom (pants/jeans/skirt/shorts) + ONE shoes
+- OR pick ONE full-body item (dress/jumpsuit) + ONE shoes
+- OPTIONAL: ONE mid layer (cardigan/vest) over the base top for layering
+- OPTIONAL: ONE outer layer (jacket/blazer/coat/hoodie) for cold or rainy weather
 - OPTIONAL: ONE bag if appropriate for the occasion
 - OPTIONAL: accessories (belt, scarf, hat, jewelry) that genuinely complement the outfit
-- For cold or rainy weather, add outerwear (jacket/coat) if available
+- Never pick two items from the same slot (e.g. two bottoms, two base tops, two outer layers)
 - Every piece must earn its place — do not add items just to fill slots
 - Do NOT pick the same item number twice
 - Return item NUMBERS only

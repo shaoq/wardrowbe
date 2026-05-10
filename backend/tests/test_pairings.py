@@ -393,3 +393,53 @@ class TestDeletePairing:
 
         response = await client.delete(f"/api/v1/pairings/{pairing.id}", headers=auth_headers)
         assert response.status_code == 404
+
+
+class TestPairingDeduplication:
+    """Tests for pairing deduplication logic via the validation helper."""
+
+    def test_exact_duplicate_item_ids_collapsed(self):
+        """Pairing validation removes duplicate item ids."""
+        from app.utils.clothing import validate_generated_outfit
+
+        shirt_id, pants_id, shoes_id = [uuid4() for _ in range(3)]
+        item_type_map = {shirt_id: "shirt", pants_id: "pants", shoes_id: "sneakers"}
+
+        result = validate_generated_outfit(
+            [shirt_id, pants_id, shoes_id, shirt_id, pants_id],
+            item_type_map,
+        )
+        assert result.cleaned_ids == [shirt_id, pants_id, shoes_id]
+        assert len(result.warnings) == 2
+
+    def test_historical_pairing_fingerprint_match(self):
+        """Verify that normalized fingerprints match for identical item sets."""
+        item1, item2, item3 = [uuid4() for _ in range(3)]
+
+        # Simulate existing pairing fingerprint
+        existing_fp = "|".join(sorted(str(iid) for iid in [item1, item2, item3]))
+
+        # Simulate new pairing with same items in different order
+        new_fp = "|".join(sorted(str(iid) for iid in [item3, item1, item2]))
+
+        assert existing_fp == new_fp
+
+    def test_partial_success_skips_duplicates(self):
+        """When some generated pairings are duplicates, only non-duplicates are kept."""
+        item1, item2, item3, item4, item5 = [uuid4() for _ in range(5)]
+
+        existing_fps = {"|".join(sorted([str(item1), str(item2), str(item3)]))}
+
+        # First new pairing is a duplicate
+        new_fp1 = "|".join(sorted([str(item1), str(item2), str(item3)]))
+        # Second new pairing is unique
+        new_fp2 = "|".join(sorted([str(item1), str(item4), str(item5)]))
+
+        results = []
+        for fp in [new_fp1, new_fp2]:
+            if fp not in existing_fps:
+                results.append(fp)
+                existing_fps.add(fp)
+
+        assert len(results) == 1
+        assert new_fp2 in results

@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from uuid import uuid4
 
 import pytest
@@ -281,7 +281,7 @@ class TestScoreItems:
         )
         assert len(result) <= 70
 
-    def test_small_wardrobe_skips_scoring(self):
+    def test_small_wardrobe_is_scored(self):
         items = [_item() for _ in range(10)]
         result = score_items(
             items=items,
@@ -295,6 +295,7 @@ class TestScoreItems:
             recently_worn_dates={},
         )
         assert len(result) == 10
+        # All items have default formality/season/etc so scores should be 1.0
         assert all(s.score == 1.0 for s in result)
 
     def test_bad_weather_tanks_score(self):
@@ -311,3 +312,76 @@ class TestScoreItems:
             recently_worn_dates={},
         )
         assert all(s.score < 0.1 for s in result)
+
+
+class TestSmallWardrobeScoring:
+    """Verify that scoring (especially recency) applies to small wardrobes."""
+
+    def test_recent_wear_penalized_in_small_wardrobe(self):
+        shirt_worn = _item(type="shirt")
+        shirt_old = _item(type="shirt")
+        pants = _item(type="pants")
+        shoes = _item(type="sneakers")
+        today = date(2026, 3, 8)
+
+        worn_dates = {
+            shirt_worn.id: today - timedelta(days=1),  # worn yesterday
+            shirt_old.id: today - timedelta(days=20),  # worn 20 days ago
+        }
+
+        result = score_items(
+            items=[shirt_worn, shirt_old, pants, shoes],
+            weather=_weather(),
+            occasion="casual",
+            preferences=None,
+            user_today=today,
+            current_season="spring",
+            learned_prefs=None,
+            good_pairs={},
+            recently_worn_dates=worn_dates,
+        )
+
+        old_pos = next(i for i, s in enumerate(result) if s.item.id == shirt_old.id)
+        worn_pos = next(i for i, s in enumerate(result) if s.item.id == shirt_worn.id)
+        assert old_pos < worn_pos  # older item ranked higher
+
+    def test_small_wardrobe_still_generates_when_alternatives_limited(self):
+        """Even when all items are recently worn, scoring still returns all items."""
+        items = [_item(type="shirt", last_worn_at=date(2026, 3, 7)) for _ in range(3)]
+        items.append(_item(type="pants", last_worn_at=date(2026, 3, 7)))
+        items.append(_item(type="sneakers", last_worn_at=date(2026, 3, 7)))
+
+        result = score_items(
+            items=items,
+            weather=_weather(),
+            occasion="casual",
+            preferences=None,
+            user_today=date(2026, 3, 8),
+            current_season="spring",
+            learned_prefs=None,
+            good_pairs={},
+            recently_worn_dates={},
+        )
+        assert len(result) == 5
+        # All items still have non-zero scores
+        assert all(s.score > 0 for s in result)
+
+    def test_small_wardrobe_weather_scoring_applies(self):
+        cold_item = _item(type="outerwear")
+        hot_item = _item(type="shorts")
+
+        result = score_items(
+            items=[cold_item, hot_item],
+            weather=_weather(temp=5),
+            occasion="casual",
+            preferences=None,
+            user_today=date(2026, 3, 8),
+            current_season="winter",
+            learned_prefs=None,
+            good_pairs={},
+            recently_worn_dates={},
+        )
+
+        cold_score = next(s.score for s in result if s.item.id == cold_item.id)
+        hot_score = next(s.score for s in result if s.item.id == hot_item.id)
+        assert cold_score > hot_score

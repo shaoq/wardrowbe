@@ -334,3 +334,80 @@ class TestPromptPreRanking:
         from app.services.recommendation_service import RECOMMENDATION_PROMPT
 
         assert "pre-ranked" in RECOMMENDATION_PROMPT
+
+
+class TestKeyPieceFingerprint:
+    """Tests for the key-piece fingerprint logic used in recommendation batch dedup."""
+
+    def test_same_key_pieces_detected_as_duplicate(self):
+        """Two outfits with the same shirt and pants but different accessories are duplicates."""
+        from app.utils.clothing import ITEM_ROLE, validate_generated_outfit
+
+        shirt_id, pants_id, shoes_id, hat_id, belt_id = [uuid4() for _ in range(5)]
+        item_type_map = {
+            shirt_id: "shirt",
+            pants_id: "pants",
+            shoes_id: "sneakers",
+            hat_id: "hat",
+            belt_id: "belt",
+        }
+
+        # Outfit 1: shirt + pants + shoes + hat
+        v1 = validate_generated_outfit([shirt_id, pants_id, shoes_id, hat_id], item_type_map)
+        # Outfit 2: shirt + pants + shoes + belt (same key pieces, different accessories)
+        v2 = validate_generated_outfit([shirt_id, pants_id, shoes_id, belt_id], item_type_map)
+
+        assert v1.key_piece_fingerprint == v2.key_piece_fingerprint
+
+    def test_different_key_pieces_not_duplicate(self):
+        """Two outfits with different tops are not duplicates."""
+        from app.utils.clothing import validate_generated_outfit
+
+        shirt1_id, shirt2_id, pants_id, shoes_id = [uuid4() for _ in range(4)]
+        item_type_map = {
+            shirt1_id: "shirt",
+            shirt2_id: "blouse",
+            pants_id: "pants",
+            shoes_id: "sneakers",
+        }
+
+        v1 = validate_generated_outfit([shirt1_id, pants_id, shoes_id], item_type_map)
+        v2 = validate_generated_outfit([shirt2_id, pants_id, shoes_id], item_type_map)
+
+        assert v1.key_piece_fingerprint != v2.key_piece_fingerprint
+
+    def test_incomplete_outfit_rejected_by_completeness(self):
+        """An outfit with only accessories and shoes is incomplete."""
+        from app.utils.clothing import validate_generated_outfit
+
+        shoes_id, hat_id, belt_id = [uuid4() for _ in range(3)]
+        item_type_map = {
+            shoes_id: "sneakers",
+            hat_id: "hat",
+            belt_id: "belt",
+        }
+
+        result = validate_generated_outfit(
+            [shoes_id, hat_id, belt_id],
+            item_type_map,
+            require_completeness=True,
+        )
+        assert not result.is_valid
+
+    def test_accessory_only_difference_treated_as_duplicate(self):
+        """Same base top + bottom + shoes with different hat = duplicate."""
+        from app.utils.clothing import validate_generated_outfit
+
+        shirt_id, pants_id, shoes_id, hat1_id, hat2_id = [uuid4() for _ in range(5)]
+        item_type_map = {
+            shirt_id: "shirt",
+            pants_id: "pants",
+            shoes_id: "sneakers",
+            hat1_id: "hat",
+            hat2_id: "hat",
+        }
+
+        v1 = validate_generated_outfit([shirt_id, pants_id, shoes_id, hat1_id], item_type_map)
+        v2 = validate_generated_outfit([shirt_id, pants_id, shoes_id, hat2_id], item_type_map)
+
+        assert v1.key_piece_fingerprint == v2.key_piece_fingerprint

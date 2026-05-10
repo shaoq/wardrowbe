@@ -1,6 +1,12 @@
 from uuid import uuid4
 
-from app.utils.clothing import ITEM_ROLE, canonical_item_order, deduplicate_by_body_slot
+from app.utils.clothing import (
+    ITEM_ROLE,
+    ValidatedOutfit,
+    canonical_item_order,
+    deduplicate_by_body_slot,
+    validate_generated_outfit,
+)
 
 
 def _ids(n):
@@ -202,3 +208,152 @@ def test_canonical_order_full_outfit():
 def test_canonical_order_empty_list():
     result = canonical_item_order([], {})
     assert result == []
+
+
+# --- validate_generated_outfit tests ---
+
+
+class TestValidateGeneratedOutfit:
+    def test_exact_duplicate_removal(self):
+        shirt_id, pants_id, shoes_id = _ids(3)
+        item_type_map = {shirt_id: "shirt", pants_id: "pants", shoes_id: "sneakers"}
+        result = validate_generated_outfit(
+            [shirt_id, pants_id, shoes_id, shirt_id, pants_id],
+            item_type_map,
+        )
+        assert result.cleaned_ids == [shirt_id, pants_id, shoes_id]
+        assert result.is_valid
+        assert len(result.warnings) == 2  # shirt and pants duplicated
+
+    def test_body_slot_conflict_resolution(self):
+        shirt_id, pants_id, shorts_id, shoes_id = _ids(4)
+        item_type_map = {
+            shirt_id: "shirt",
+            pants_id: "pants",
+            shorts_id: "shorts",
+            shoes_id: "sneakers",
+        }
+        result = validate_generated_outfit(
+            [shirt_id, pants_id, shorts_id, shoes_id],
+            item_type_map,
+        )
+        assert pants_id in result.cleaned_ids
+        assert shorts_id not in result.cleaned_ids
+        assert result.is_valid
+
+    def test_layering_base_top_plus_outer_layer_allowed(self):
+        shirt_id, jacket_id, pants_id, shoes_id = _ids(4)
+        item_type_map = {
+            shirt_id: "shirt",
+            jacket_id: "jacket",
+            pants_id: "pants",
+            shoes_id: "sneakers",
+        }
+        result = validate_generated_outfit(
+            [shirt_id, jacket_id, pants_id, shoes_id],
+            item_type_map,
+        )
+        assert len(result.cleaned_ids) == 4
+        assert result.is_valid
+        assert "base_top" in result.roles
+        assert "outer_layer" in result.roles
+
+    def test_complete_separates_outfit(self):
+        shirt_id, pants_id, shoes_id = _ids(3)
+        item_type_map = {shirt_id: "shirt", pants_id: "pants", shoes_id: "sneakers"}
+        result = validate_generated_outfit(
+            [shirt_id, pants_id, shoes_id],
+            item_type_map,
+            require_completeness=True,
+        )
+        assert result.is_valid
+        assert "base_top" in result.roles
+        assert "bottom" in result.roles
+        assert "footwear" in result.roles
+
+    def test_complete_full_body_outfit(self):
+        dress_id, shoes_id = _ids(2)
+        item_type_map = {dress_id: "dress", shoes_id: "sneakers"}
+        result = validate_generated_outfit(
+            [dress_id, shoes_id],
+            item_type_map,
+            require_completeness=True,
+        )
+        assert result.is_valid
+        assert "full_body" in result.roles
+        assert "footwear" in result.roles
+
+    def test_incomplete_missing_footwear(self):
+        shirt_id, pants_id = _ids(2)
+        item_type_map = {shirt_id: "shirt", pants_id: "pants"}
+        result = validate_generated_outfit(
+            [shirt_id, pants_id],
+            item_type_map,
+            require_completeness=True,
+        )
+        assert not result.is_valid
+        assert any("footwear" in e for e in result.errors)
+
+    def test_incomplete_missing_top_and_bottom(self):
+        shoes_id, hat_id = _ids(2)
+        item_type_map = {shoes_id: "sneakers", hat_id: "hat"}
+        result = validate_generated_outfit(
+            [shoes_id, hat_id],
+            item_type_map,
+            require_completeness=True,
+        )
+        assert not result.is_valid
+        assert any("full-body" in e or "base top" in e for e in result.errors)
+
+    def test_key_piece_fingerprint_separates(self):
+        shirt_id, pants_id, shoes_id = _ids(3)
+        item_type_map = {shirt_id: "shirt", pants_id: "pants", shoes_id: "sneakers"}
+        result = validate_generated_outfit(
+            [shirt_id, pants_id, shoes_id],
+            item_type_map,
+        )
+        assert f"base_top:{shirt_id}" in result.key_piece_fingerprint
+        assert f"bottom:{pants_id}" in result.key_piece_fingerprint
+
+    def test_key_piece_fingerprint_full_body(self):
+        dress_id, shoes_id = _ids(2)
+        item_type_map = {dress_id: "dress", shoes_id: "sneakers"}
+        result = validate_generated_outfit(
+            [dress_id, shoes_id],
+            item_type_map,
+        )
+        assert f"full_body:{dress_id}" in result.key_piece_fingerprint
+
+    def test_full_fingerprint_sorted(self):
+        id1, id2, id3 = _ids(3)
+        item_type_map = {id1: "shirt", id2: "pants", id3: "sneakers"}
+        result = validate_generated_outfit(
+            [id3, id1, id2],
+            item_type_map,
+        )
+        expected = "|".join(sorted(str(x) for x in [id1, id2, id3]))
+        assert result.full_fingerprint == expected
+
+    def test_accessories_not_in_roles(self):
+        shirt_id, pants_id, shoes_id, hat_id = _ids(4)
+        item_type_map = {
+            shirt_id: "shirt",
+            pants_id: "pants",
+            shoes_id: "sneakers",
+            hat_id: "hat",
+        }
+        result = validate_generated_outfit(
+            [shirt_id, pants_id, shoes_id, hat_id],
+            item_type_map,
+        )
+        assert "accessory" not in result.roles
+        assert hat_id in result.cleaned_ids
+
+    def test_no_completeness_check_by_default(self):
+        shirt_id = _ids(1)[0]
+        item_type_map = {shirt_id: "shirt"}
+        result = validate_generated_outfit(
+            [shirt_id],
+            item_type_map,
+        )
+        assert result.is_valid  # no errors when completeness not required
