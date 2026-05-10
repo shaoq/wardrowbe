@@ -258,6 +258,8 @@ class AIEndpointConfig:
 class AIService:
     """Service for AI-powered image analysis and text generation."""
 
+    MAX_OUTPUT_TOKENS = 8192
+
     def __init__(self, endpoints: list[dict] | None = None):
         """
         Initialize AI service with optional custom endpoints.
@@ -301,6 +303,9 @@ class AIService:
         self.base_url = self._endpoints[0].url
         self.vision_model = self._endpoints[0].vision_model
         self.text_model = self._endpoints[0].text_model
+
+    def _max_tokens(self) -> int:
+        return min(self.settings.ai_max_tokens, self.MAX_OUTPUT_TOKENS)
 
     def _get_headers(self) -> dict:
         """Get headers for AI API requests, including auth if configured."""
@@ -462,7 +467,7 @@ class AIService:
                             "model": model,
                             "messages": messages,
                             "stream": False,
-                            "max_tokens": self.settings.ai_max_tokens,
+                            "max_tokens": self._max_tokens(),
                         }
                         if request_logprobs:
                             request_body["logprobs"] = True
@@ -657,7 +662,7 @@ class AIService:
                                 "messages": messages,
                                 "stream": False,
                                 "temperature": 0.4,
-                                "max_tokens": self.settings.ai_max_tokens,
+                                "max_tokens": self._max_tokens(),
                             },
                         )
                         response.raise_for_status()

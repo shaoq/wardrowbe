@@ -5,6 +5,9 @@ const BACKEND_URL =
   process.env.NEXT_PUBLIC_API_URL ||
   'http://backend:8000';
 
+export const dynamic = 'force-dynamic';
+export const maxDuration = 300;
+
 export async function POST(
   request: NextRequest,
   { params }: { params: { itemId: string } }

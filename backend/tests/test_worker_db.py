@@ -2,7 +2,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from app.services.ai_service import ClothingTags
 from app.workers.db import close_db, get_db_session, init_db
+from app.workers.tagging import tags_to_item_fields
 from app.workers.worker import shutdown, startup
 
 
@@ -77,6 +79,18 @@ class TestGetDbSession:
     def test_raises_runtime_error_before_init(self):
         with pytest.raises(RuntimeError, match="not initialized"):
             get_db_session({})
+
+
+class TestTaggingFields:
+    def test_tags_to_item_fields_allows_tags_without_comfort_fields(self):
+        tags = ClothingTags(type="shirt", primary_color="blue")
+
+        fields = tags_to_item_fields(tags)
+
+        assert fields["type"] == "shirt"
+        assert fields["primary_color"] == "blue"
+        assert "fabric_weight" not in fields["tags"]
+        assert "warmth_level" not in fields["tags"]
 
 
 class TestWorkerHooks:

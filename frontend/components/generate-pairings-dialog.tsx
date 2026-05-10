@@ -45,6 +45,10 @@ export function GeneratePairingsDialog({
         itemId: item.id,
         numPairings,
       });
+      if (result.generated === 0) {
+        toast.info('没有生成新的搭配，可能已有相同组合。请到搭配页查看已有结果，或换一件单品再试。');
+        return;
+      }
       setGeneratedPairings(result.pairings);
       toast.success(`已生成 ${result.generated} 套穿搭！`);
     } catch (error) {

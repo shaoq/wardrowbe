@@ -28,10 +28,12 @@ def tags_to_item_fields(tags: ClothingTags, raw_response: str | None = None) -> 
         "condition": tags.condition,
         "features": tags.features or [],
     }
-    if tags.fabric_weight:
-        tags_jsonb["fabric_weight"] = tags.fabric_weight
-    if tags.warmth_level:
-        tags_jsonb["warmth_level"] = tags.warmth_level
+    fabric_weight = getattr(tags, "fabric_weight", None)
+    warmth_level = getattr(tags, "warmth_level", None)
+    if fabric_weight:
+        tags_jsonb["fabric_weight"] = fabric_weight
+    if warmth_level:
+        tags_jsonb["warmth_level"] = warmth_level
     tags_jsonb["comfort_tags_source"] = "ai"
     tags_jsonb["comfort_tags_confidence"] = tags.confidence
     if tags.logprobs_confidence is not None:

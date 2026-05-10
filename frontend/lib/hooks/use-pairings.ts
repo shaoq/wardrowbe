@@ -69,9 +69,31 @@ export function useGeneratePairings() {
       if (session?.accessToken) {
         setAccessToken(session.accessToken as string);
       }
-      return api.post<GeneratePairingsResponse>(`/pairings/generate/${itemId}`, {
-        num_pairings: numPairings,
+
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (session?.accessToken) {
+        headers.Authorization = `Bearer ${session.accessToken}`;
+      }
+
+      const response = await fetch(`/api/ai/pairings/generate/${itemId}`, {
+        method: 'POST',
+        headers,
+        credentials: 'include',
+        body: JSON.stringify({ num_pairings: numPairings }),
       });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        const message =
+          (typeof data.detail === 'string' ? data.detail : data.detail?.message) ||
+          data.error?.message ||
+          '生成搭配失败';
+        throw new Error(message);
+      }
+
+      return response.json() as Promise<GeneratePairingsResponse>;
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['pairings'] });
