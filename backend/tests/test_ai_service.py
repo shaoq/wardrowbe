@@ -25,8 +25,8 @@ class TestTagParsing:
         assert tags.pattern == "striped"
         assert tags.material == "cotton"
         # Confidence is now computed by compute_tag_completeness (not AI self-reported)
-        # type(0.25) + primary_color(0.20) + pattern(0.15) + formality(0.15) + material(0.10) + colors(0.05) = 0.90
-        assert tags.confidence == 0.9
+        # type(0.20) + primary_color(0.18) + pattern(0.12) + formality(0.12) + material(0.10) + colors(0.03) = 0.75
+        assert tags.confidence == 0.75
 
     def test_parse_json_in_markdown(self):
         """Test parsing JSON wrapped in markdown code block."""
@@ -107,8 +107,8 @@ class TestTagParsing:
         }
         """
         tags = service._parse_tags_from_response(response)
-        # Confidence is now computed by compute_tag_completeness: type only = 0.25
-        assert tags.confidence == 0.25
+        # Confidence is now computed by compute_tag_completeness: type only = 0.20
+        assert tags.confidence == 0.20
 
     def test_parse_valid_formality(self):
         """Test parsing formality levels."""
@@ -145,6 +145,8 @@ class TestClothingTags:
         assert tags.colors == []
         assert tags.style == []
         assert tags.confidence == 0.0
+        assert tags.fabric_weight is None
+        assert tags.warmth_level is None
 
     def test_full_construction(self):
         """Test constructing ClothingTags with all fields."""
@@ -158,6 +160,8 @@ class TestClothingTags:
             style=["formal", "classic"],
             formality="formal",
             season=["fall", "winter"],
+            fabric_weight="midweight",
+            warmth_level="medium",
             confidence=0.92,
             description="A classic navy blazer",
         )
@@ -165,4 +169,78 @@ class TestClothingTags:
         assert tags.subtype == "blazer"
         assert tags.primary_color == "navy"
         assert len(tags.colors) == 2
+        assert tags.fabric_weight == "midweight"
+        assert tags.warmth_level == "medium"
         assert tags.confidence == 0.92
+
+
+class TestComfortTagParsing:
+    """Tests for comfort tag parsing in AI responses."""
+
+    def test_parse_valid_comfort_tags(self):
+        service = AIService()
+        response = """
+        {
+            "type": "sweater",
+            "primary_color": "gray",
+            "material": "wool",
+            "fabric_weight": "heavyweight",
+            "warmth_level": "warm"
+        }
+        """
+        tags = service._parse_tags_from_response(response)
+        assert tags.fabric_weight == "heavyweight"
+        assert tags.warmth_level == "warm"
+
+    def test_parse_invalid_comfort_tags_discarded(self):
+        service = AIService()
+        response = """
+        {
+            "type": "shirt",
+            "primary_color": "blue",
+            "fabric_weight": "ultra-thin",
+            "warmth_level": "super-hot"
+        }
+        """
+        tags = service._parse_tags_from_response(response)
+        assert tags.fabric_weight is None
+        assert tags.warmth_level is None
+
+    def test_parse_omitted_comfort_tags(self):
+        service = AIService()
+        response = """
+        {
+            "type": "shirt",
+            "primary_color": "blue"
+        }
+        """
+        tags = service._parse_tags_from_response(response)
+        assert tags.fabric_weight is None
+        assert tags.warmth_level is None
+
+    def test_parse_partial_comfort_tags(self):
+        service = AIService()
+        response = """
+        {
+            "type": "shirt",
+            "primary_color": "white",
+            "fabric_weight": "lightweight"
+        }
+        """
+        tags = service._parse_tags_from_response(response)
+        assert tags.fabric_weight == "lightweight"
+        assert tags.warmth_level is None
+
+    def test_all_fabric_weight_values(self):
+        service = AIService()
+        for weight in ["sheer", "lightweight", "midweight", "heavyweight"]:
+            response = f'{{"type": "shirt", "fabric_weight": "{weight}"}}'
+            tags = service._parse_tags_from_response(response)
+            assert tags.fabric_weight == weight
+
+    def test_all_warmth_level_values(self):
+        service = AIService()
+        for level in ["cool", "light", "medium", "warm", "heavy"]:
+            response = f'{{"type": "shirt", "warmth_level": "{level}"}}'
+            tags = service._parse_tags_from_response(response)
+            assert tags.warmth_level == level

@@ -15,6 +15,8 @@ from app.services.item_scorer import (
     _weather_score,
     get_season,
     score_items,
+    get_comfort_profile,
+    ComfortProfile,
 )
 from app.services.weather_service import WeatherData
 
@@ -35,6 +37,7 @@ def _item(**kwargs) -> ClothingItem:
         "last_worn_at": None,
         "needs_wash": False,
         "is_archived": False,
+        "tags": {},
     }
     defaults.update(kwargs)
     return ClothingItem(**defaults)
@@ -385,3 +388,57 @@ class TestSmallWardrobeScoring:
         cold_score = next(s.score for s in result if s.item.id == cold_item.id)
         hot_score = next(s.score for s in result if s.item.id == hot_item.id)
         assert cold_score > hot_score
+
+
+class TestComfortProfile:
+    def test_user_tags_preferred(self):
+        item = _item(tags={"fabric_weight": "heavyweight", "warmth_level": "warm", "comfort_tags_source": "user"})
+        profile = get_comfort_profile(item)
+        assert profile.source == "user"
+        assert profile.confidence == 1.0
+        assert profile.warmth > 0.7
+
+    def test_ai_tags_used(self):
+        item = _item(tags={"fabric_weight": "lightweight", "warmth_level": "cool", "comfort_tags_source": "ai"})
+        profile = get_comfort_profile(item)
+        assert profile.source == "ai"
+        assert profile.warmth < 0.3
+
+    def test_inference_from_type(self):
+        item = _item(type="coat", tags={})
+        profile = get_comfort_profile(item)
+        assert profile.source == "inferred"
+        assert profile.warmth > 0.5
+
+    def test_inference_from_material(self):
+        item = _item(material="linen", tags={})
+        profile = get_comfort_profile(item)
+        assert profile.source == "inferred"
+        assert profile.warmth < 0.5
+
+    def test_inference_from_season(self):
+        item = _item(season=["summer"], tags={})
+        profile = get_comfort_profile(item)
+        assert profile.source == "inferred"
+        assert profile.warmth < 0.5
+
+
+class TestComfortWeatherScoring:
+    def test_hot_weather_penalizes_warm_items(self):
+        warm_item = _item(type="shirt", tags={"fabric_weight": "heavyweight", "warmth_level": "warm", "comfort_tags_source": "ai"})
+        cool_item = _item(type="shirt", tags={"fabric_weight": "lightweight", "warmth_level": "cool", "comfort_tags_source": "ai"})
+        assert _weather_score(warm_item, _weather(temp=35), None) < _weather_score(cool_item, _weather(temp=35), None)
+
+    def test_cold_weather_penalizes_cool_items(self):
+        cool_item = _item(type="shirt", tags={"fabric_weight": "sheer", "warmth_level": "cool", "comfort_tags_source": "ai"})
+        warm_item = _item(type="shirt", tags={"fabric_weight": "midweight", "warmth_level": "warm", "comfort_tags_source": "ai"})
+        assert _weather_score(cool_item, _weather(temp=0), None) < _weather_score(warm_item, _weather(temp=0), None)
+
+
+class TestAllSeasonScore:
+    def test_all_season_treated_as_match(self):
+        item = _item(season=["all-season"])
+        assert _season_score(item, "summer") == 1.0
+        assert _season_score(item, "winter") == 1.0
+        assert _season_score(item, "spring") == 1.0
+        assert _season_score(item, "fall") == 1.0

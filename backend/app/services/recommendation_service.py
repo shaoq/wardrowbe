@@ -23,7 +23,7 @@ from app.models.outfit import (
 from app.models.preference import UserPreference
 from app.models.user import User
 from app.services.ai_service import AIService
-from app.services.item_scorer import get_season, score_items
+from app.services.item_scorer import get_season, score_items, get_comfort_profile, ComfortProfile
 from app.services.suggestion_cache import pop_suggestion, push_suggestions
 from app.services.weather_service import WeatherData, WeatherService, WeatherServiceError
 from app.utils.clothing import (
@@ -80,6 +80,37 @@ class RecommendationService:
     def __init__(self, db: AsyncSession):
         self.db = db
         self.weather_service = WeatherService()
+
+    def _check_comfort_weather_mismatch(
+        self,
+        item_ids: list[UUID],
+        weather: WeatherData,
+        preferences: UserPreference | None,
+    ) -> str | None:
+        """Check for severe comfort-weather mismatches.
+
+        Returns a warning string if a severe mismatch is found, or None.
+        Only checks key garments (tops, outerwear, bottoms, full-body).
+        """
+        temp = weather.temperature
+        cold_threshold = 10
+        hot_threshold = 25
+
+        if preferences:
+            if preferences.cold_threshold is not None:
+                cold_threshold = preferences.cold_threshold
+            if preferences.hot_threshold is not None:
+                hot_threshold = preferences.hot_threshold
+            if preferences.temperature_sensitivity == "high":
+                cold_threshold += 5
+                hot_threshold -= 5
+            elif preferences.temperature_sensitivity == "low":
+                cold_threshold -= 5
+                hot_threshold += 5
+
+        # We can't check full items here (only have IDs), so we defer
+        # the detailed check to _validate_outfit_comfort after loading items
+        return None
 
     async def get_candidate_items(
         self,
@@ -230,6 +261,20 @@ class RecommendationService:
             fit = item.tags.get("fit") if item.tags else None
             if fit:
                 parts.append(f"{fit} fit")
+
+            # Comfort metadata
+            comfort = get_comfort_profile(item)
+            if comfort.source != "inferred" or comfort.confidence > 0.3:
+                comfort_parts = []
+                if item.tags and isinstance(item.tags, dict):
+                    fw = item.tags.get("fabric_weight")
+                    wl = item.tags.get("warmth_level")
+                    if fw:
+                        comfort_parts.append(fw)
+                    if wl:
+                        comfort_parts.append(wl)
+                if comfort_parts:
+                    parts.append(f"comfort: {', '.join(comfort_parts)}")
 
             if item.name:
                 parts.insert(0, f'"{item.name}"')
@@ -524,6 +569,7 @@ class RecommendationService:
         source: OutfitSource,
         number_map: dict[int, UUID],
         scheduled_date: date | None = None,
+        skip_comfort_check: bool = False,
     ) -> Outfit:
         selected_numbers = outfit_data.get("items", [])
         raw_ids = []
@@ -546,6 +592,57 @@ class RecommendationService:
             select(ClothingItem.id, ClothingItem.type).where(ClothingItem.id.in_(raw_ids))
         )
         item_type_map = {row.id: (row.type or "").lower() for row in items_result}
+
+        # Comfort-weather validation for generated outfits
+        if not skip_comfort_check:
+            # Load full items for comfort check
+            comfort_items_result = await self.db.execute(
+                select(ClothingItem).where(ClothingItem.id.in_(raw_ids))
+            )
+            comfort_items = {item.id: item for item in comfort_items_result.scalars().all()}
+
+            # Check for severe mismatches
+            temp = weather.temperature
+            cold_threshold = 10
+            hot_threshold = 25
+            if user.preferences:
+                if user.preferences.cold_threshold is not None:
+                    cold_threshold = user.preferences.cold_threshold
+                if user.preferences.hot_threshold is not None:
+                    hot_threshold = user.preferences.hot_threshold
+                if user.preferences.temperature_sensitivity == "high":
+                    cold_threshold += 5
+                    hot_threshold -= 5
+                elif user.preferences.temperature_sensitivity == "low":
+                    cold_threshold -= 5
+                    hot_threshold += 5
+
+            _KEY_TYPES = {"shirt", "t-shirt", "top", "blouse", "tank-top", "polo",
+                          "jacket", "coat", "blazer", "sweater", "hoodie", "cardigan", "vest",
+                          "pants", "jeans", "shorts", "skirt", "dress", "jumpsuit"}
+
+            for iid in raw_ids:
+                ci = comfort_items.get(iid)
+                if not ci:
+                    continue
+                item_type = (ci.type or "").lower()
+                if item_type not in _KEY_TYPES:
+                    continue
+                comfort = get_comfort_profile(ci)
+                if comfort.source == "inferred" and comfort.confidence < 0.4:
+                    continue  # Skip low-confidence inference
+                if temp < cold_threshold and comfort.warmth < 0.2:
+                    logger.warning(f"Severe cold-weather mismatch: {item_type} with warmth={comfort.warmth}")
+                    raise AIRecommendationError(
+                        f"Generated outfit includes a cool/light item ({item_type}) "
+                        "inappropriate for cold weather"
+                    )
+                if temp > hot_threshold and comfort.warmth > 0.8:
+                    logger.warning(f"Severe hot-weather mismatch: {item_type} with warmth={comfort.warmth}")
+                    raise AIRecommendationError(
+                        f"Generated outfit includes a warm/heavy item ({item_type}) "
+                        "inappropriate for hot weather"
+                    )
 
         # Shared validation: exact dedup + body-slot cleanup + completeness
         validated = validate_generated_outfit(
@@ -854,30 +951,59 @@ class RecommendationService:
             if not outfit_list:
                 raise AIRecommendationError("All generated outfits were duplicates")
 
-            first = outfit_list[0]
-            first["_ai_model"] = result.model
-            first["_ai_endpoint"] = result.endpoint
+            # Try outfits in order, skipping comfort-weather mismatches
+            outfit = None
+            for idx, od in enumerate(outfit_list):
+                od["_ai_model"] = result.model
+                od["_ai_endpoint"] = result.endpoint
+                try:
+                    outfit = await self._materialize_outfit(
+                        od,
+                        user,
+                        weather,
+                        occasion,
+                        source,
+                        number_map,
+                        scheduled_date=scheduled_date,
+                    )
+                    break
+                except AIRecommendationError as e:
+                    logger.warning(f"Outfit option {idx + 1} rejected: {e}")
+                    if idx == len(outfit_list) - 1:
+                        # Last option — allow it (limited wardrobe fallback)
+                        logger.warning("Falling back to last outfit option despite comfort concern")
+                        outfit = await self._materialize_outfit(
+                            od,
+                            user,
+                            weather,
+                            occasion,
+                            source,
+                            number_map,
+                            scheduled_date=scheduled_date,
+                            skip_comfort_check=True,
+                        )
+                    continue
 
-            outfit = await self._materialize_outfit(
-                first,
-                user,
-                weather,
-                occasion,
-                source,
-                number_map,
-                scheduled_date=scheduled_date,
-            )
+            if outfit is None:
+                raise AIRecommendationError("All outfit options failed validation")
 
-            # Cache remaining outfits for "Try Another"
-            if len(outfit_list) > 1:
+            # Cache remaining unprocessed outfits for "Try Another"
+            remaining = outfit_list[outfit_list.index(od) + 1:]  # type: ignore[possibly-undefined]
+            if remaining:
                 serializable_map = {str(k): str(v) for k, v in number_map.items()}
                 to_cache = []
-                for od in outfit_list[1:]:
-                    od["_number_map"] = serializable_map
-                    od["_ai_model"] = result.model
-                    od["_ai_endpoint"] = result.endpoint
-                    to_cache.append(od)
-                await push_suggestions(user.id, occasion, to_cache)
+                for rem_od in remaining:
+                    rem_od["_number_map"] = serializable_map
+                    rem_od["_ai_model"] = result.model
+                    rem_od["_ai_endpoint"] = result.endpoint
+                    to_cache.append(rem_od)
+                await push_suggestions(
+                    user.id, occasion, to_cache,
+                    weather_context={
+                        "temp_band": "cold" if weather.temperature < 10 else ("hot" if weather.temperature >= 20 else "mild"),
+                        "season": current_season,
+                    },
+                )
                 logger.info(f"Cached {len(to_cache)} additional suggestions for user {user.id}")
 
             return outfit

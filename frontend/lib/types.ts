@@ -14,6 +14,10 @@ export interface ItemTags {
   condition?: string;
   features?: string[];
   logprobs_confidence?: number;
+  fabric_weight?: string;
+  warmth_level?: string;
+  comfort_tags_source?: string;
+  comfort_tags_confidence?: number;
 }
 
 export interface Item {
@@ -36,7 +40,7 @@ export interface Item {
   tags: ItemTags;
   colors: string[];
   primary_color?: string;
-  status: 'processing' | 'ready' | 'error' | 'archived';
+  status: "processing" | "ready" | "error" | "archived";
   ai_processed: boolean;
   ai_confidence?: number;
   ai_description?: string;
@@ -76,7 +80,7 @@ export interface ItemFilter {
   is_archived?: boolean;
   search?: string;
   sort_by?: string;
-  sort_order?: 'asc' | 'desc';
+  sort_order?: "asc" | "desc";
   ids?: string;
 }
 
@@ -101,86 +105,86 @@ export interface Preferences {
   color_avoid: string[];
   style_profile: StyleProfile;
   default_occasion: string;
-  temperature_unit: 'celsius' | 'fahrenheit';
-  temperature_sensitivity: 'low' | 'normal' | 'high';
+  temperature_unit: "celsius" | "fahrenheit";
+  temperature_sensitivity: "low" | "normal" | "high";
   cold_threshold: number;
   hot_threshold: number;
-  layering_preference: 'minimal' | 'moderate' | 'heavy';
+  layering_preference: "minimal" | "moderate" | "heavy";
   avoid_repeat_days: number;
   prefer_underused_items: boolean;
-  variety_level: 'low' | 'moderate' | 'high';
+  variety_level: "low" | "moderate" | "high";
   ai_endpoints: AIEndpoint[];
 }
 
 // Color options for the app
 // Hex values tuned for typical clothing colors, not pure/saturated colors
 export const CLOTHING_COLORS = [
-  { name: '黑色', value: 'black', hex: '#1a1a1a' },
-  { name: '炭灰色', value: 'charcoal', hex: '#36454F' },
-  { name: '灰色', value: 'gray', hex: '#808080' },
-  { name: '白色', value: 'white', hex: '#FAFAFA' },
-  { name: '奶油色', value: 'cream', hex: '#F5F5DC' },
-  { name: '米色', value: 'beige', hex: '#D4C4A8' },
-  { name: '棕褐色', value: 'tan', hex: '#C9B896' },
-  { name: '卡其色', value: 'khaki', hex: '#A89F6B' },
-  { name: '橄榄绿', value: 'olive', hex: '#707B52' },
-  { name: '军绿色', value: 'army-green', hex: '#5B6340' },
-  { name: '绿色', value: 'green', hex: '#4A7C59' },
-  { name: '蓝绿色', value: 'teal', hex: '#367588' },
-  { name: '藏青色', value: 'navy', hex: '#1B2A4A' },
-  { name: '蓝色', value: 'blue', hex: '#4A7DB8' },
-  { name: '棕色', value: 'brown', hex: '#8B5A3C' },
-  { name: '深棕色', value: 'dark-brown', hex: '#5C4033' },
-  { name: '酒红色', value: 'burgundy', hex: '#722F37' },
-  { name: '红色', value: 'red', hex: '#C44536' },
-  { name: '粉色', value: 'pink', hex: '#E8A0B0' },
-  { name: '紫色', value: 'purple', hex: '#6B5B7A' },
-  { name: '黄色', value: 'yellow', hex: '#D4A84B' },
-  { name: '橙色', value: 'orange', hex: '#D2691E' },
+  { name: "黑色", value: "black", hex: "#1a1a1a" },
+  { name: "炭灰色", value: "charcoal", hex: "#36454F" },
+  { name: "灰色", value: "gray", hex: "#808080" },
+  { name: "白色", value: "white", hex: "#FAFAFA" },
+  { name: "奶油色", value: "cream", hex: "#F5F5DC" },
+  { name: "米色", value: "beige", hex: "#D4C4A8" },
+  { name: "棕褐色", value: "tan", hex: "#C9B896" },
+  { name: "卡其色", value: "khaki", hex: "#A89F6B" },
+  { name: "橄榄绿", value: "olive", hex: "#707B52" },
+  { name: "军绿色", value: "army-green", hex: "#5B6340" },
+  { name: "绿色", value: "green", hex: "#4A7C59" },
+  { name: "蓝绿色", value: "teal", hex: "#367588" },
+  { name: "藏青色", value: "navy", hex: "#1B2A4A" },
+  { name: "蓝色", value: "blue", hex: "#4A7DB8" },
+  { name: "棕色", value: "brown", hex: "#8B5A3C" },
+  { name: "深棕色", value: "dark-brown", hex: "#5C4033" },
+  { name: "酒红色", value: "burgundy", hex: "#722F37" },
+  { name: "红色", value: "red", hex: "#C44536" },
+  { name: "粉色", value: "pink", hex: "#E8A0B0" },
+  { name: "紫色", value: "purple", hex: "#6B5B7A" },
+  { name: "黄色", value: "yellow", hex: "#D4A84B" },
+  { name: "橙色", value: "orange", hex: "#D2691E" },
 ] as const;
 
 // Clothing types — must match the TYPE vocabulary in clothing_analysis.txt
 export const CLOTHING_TYPES = [
-  { label: '衬衫', value: 'shirt' },
-  { label: 'T恤', value: 't-shirt' },
-  { label: '上衣', value: 'top' },
-  { label: 'Polo衫', value: 'polo' },
-  { label: '女衫', value: 'blouse' },
-  { label: '背心', value: 'tank-top' },
-  { label: '毛衣', value: 'sweater' },
-  { label: '卫衣', value: 'hoodie' },
-  { label: '开衫', value: 'cardigan' },
-  { label: '马甲', value: 'vest' },
-  { label: '长裤', value: 'pants' },
-  { label: '牛仔裤', value: 'jeans' },
-  { label: '短裤', value: 'shorts' },
-  { label: '裙子', value: 'skirt' },
-  { label: '连衣裙', value: 'dress' },
-  { label: '连体裤', value: 'jumpsuit' },
-  { label: '夹克', value: 'jacket' },
-  { label: '西服外套', value: 'blazer' },
-  { label: '大衣', value: 'coat' },
-  { label: '套装', value: 'suit' },
-  { label: '鞋子', value: 'shoes' },
-  { label: '运动鞋', value: 'sneakers' },
-  { label: '靴子', value: 'boots' },
-  { label: '凉鞋', value: 'sandals' },
-  { label: '袜子', value: 'socks' },
-  { label: '领带', value: 'tie' },
-  { label: '帽子', value: 'hat' },
-  { label: '围巾', value: 'scarf' },
-  { label: '腰带', value: 'belt' },
-  { label: '包', value: 'bag' },
-  { label: '配饰', value: 'accessories' },
+  { label: "衬衫", value: "shirt" },
+  { label: "T恤", value: "t-shirt" },
+  { label: "上衣", value: "top" },
+  { label: "Polo衫", value: "polo" },
+  { label: "女衫", value: "blouse" },
+  { label: "背心", value: "tank-top" },
+  { label: "毛衣", value: "sweater" },
+  { label: "卫衣", value: "hoodie" },
+  { label: "开衫", value: "cardigan" },
+  { label: "马甲", value: "vest" },
+  { label: "长裤", value: "pants" },
+  { label: "牛仔裤", value: "jeans" },
+  { label: "短裤", value: "shorts" },
+  { label: "裙子", value: "skirt" },
+  { label: "连衣裙", value: "dress" },
+  { label: "连体裤", value: "jumpsuit" },
+  { label: "夹克", value: "jacket" },
+  { label: "西服外套", value: "blazer" },
+  { label: "大衣", value: "coat" },
+  { label: "套装", value: "suit" },
+  { label: "鞋子", value: "shoes" },
+  { label: "运动鞋", value: "sneakers" },
+  { label: "靴子", value: "boots" },
+  { label: "凉鞋", value: "sandals" },
+  { label: "袜子", value: "socks" },
+  { label: "领带", value: "tie" },
+  { label: "帽子", value: "hat" },
+  { label: "围巾", value: "scarf" },
+  { label: "腰带", value: "belt" },
+  { label: "包", value: "bag" },
+  { label: "配饰", value: "accessories" },
 ] as const;
 
 export const OCCASIONS = [
-  { label: '日常休闲', value: 'casual' },
-  { label: '办公通勤', value: 'office' },
-  { label: '正式场合', value: 'formal' },
-  { label: '约会', value: 'date' },
-  { label: '运动', value: 'sporty' },
-  { label: '户外', value: 'outdoor' },
+  { label: "日常休闲", value: "casual" },
+  { label: "办公通勤", value: "office" },
+  { label: "正式场合", value: "formal" },
+  { label: "约会", value: "date" },
+  { label: "运动", value: "sporty" },
+  { label: "户外", value: "outdoor" },
 ] as const;
 
 // Family types
@@ -189,14 +193,14 @@ export interface FamilyMember {
   display_name: string;
   email: string;
   avatar_url?: string;
-  role: 'admin' | 'member';
-  created_at: string;  // When user joined the family
+  role: "admin" | "member";
+  created_at: string; // When user joined the family
 }
 
 export interface PendingInvite {
   id: string;
   email: string;
-  created_at: string;  // When invite was sent
+  created_at: string; // When invite was sent
   expires_at: string;
 }
 
@@ -287,13 +291,13 @@ export interface FeedbackSummary {
   worn_at?: string;
 }
 
-export type OutfitSource = 'scheduled' | 'on_demand' | 'manual' | 'pairing';
+export type OutfitSource = "scheduled" | "on_demand" | "manual" | "pairing";
 
 export interface Outfit {
   id: string;
   occasion: string;
   scheduled_for: string;
-  status: 'pending' | 'sent' | 'viewed' | 'accepted' | 'rejected' | 'expired';
+  status: "pending" | "sent" | "viewed" | "accepted" | "rejected" | "expired";
   source: OutfitSource;
   reasoning?: string;
   style_notes?: string;

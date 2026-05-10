@@ -37,6 +37,8 @@ class ClothingTags(BaseModel):
     brand: str | None = None
     condition: str | None = None
     features: list[str] = []
+    fabric_weight: str | None = None
+    warmth_level: str | None = None
     confidence: float = 0.0
     logprobs_confidence: float | None = None
     description: str | None = None
@@ -145,18 +147,20 @@ VALID_STYLES = {
     "rugged",
 }
 VALID_SEASONS = {"spring", "summer", "fall", "winter", "all-season"}
+VALID_FABRIC_WEIGHTS = {"sheer", "lightweight", "midweight", "heavyweight"}
+VALID_WARMTH_LEVELS = {"cool", "light", "medium", "warm", "heavy"}
 
 
 def compute_tag_completeness(tags: "ClothingTags") -> float:
     score = 0.0
     if tags.type and tags.type != "unknown":
-        score += 0.25
-    if tags.primary_color:
         score += 0.20
+    if tags.primary_color:
+        score += 0.18
     if tags.pattern:
-        score += 0.15
+        score += 0.12
     if tags.formality:
-        score += 0.15
+        score += 0.12
     if tags.material:
         score += 0.10
     if tags.season:
@@ -164,7 +168,11 @@ def compute_tag_completeness(tags: "ClothingTags") -> float:
     if tags.style:
         score += 0.05
     if tags.colors:
-        score += 0.05
+        score += 0.03
+    if tags.fabric_weight:
+        score += 0.08
+    if tags.warmth_level:
+        score += 0.07
     return round(score, 2)
 
 
@@ -425,6 +433,8 @@ class AIService:
         tags.style = validate_list(data.get("style", []), VALID_STYLES)
         tags.season = validate_list(data.get("season", []), VALID_SEASONS)
         tags.fit = validate_value(data.get("fit"), VALID_FIT)
+        tags.fabric_weight = validate_value(data.get("fabric_weight"), VALID_FABRIC_WEIGHTS)
+        tags.warmth_level = validate_value(data.get("warmth_level"), VALID_WARMTH_LEVELS)
         tags.confidence = compute_tag_completeness(tags)
 
         logger.info(

@@ -7,6 +7,93 @@ from app.models.item import ClothingItem
 from app.models.preference import UserPreference
 from app.services.weather_service import WeatherData
 
+
+# ── Comfort profile helpers ──────────────────────────────────────────────
+
+# Warmth scale: 0 = coolest, 4 = warmest
+_WARMTH_ORDER = {"cool": 0, "light": 1, "medium": 2, "warm": 3, "heavy": 4}
+_FABRIC_ORDER = {"sheer": 0, "lightweight": 1, "midweight": 2, "heavyweight": 3}
+
+# Types that tend to be warm
+_WARM_TYPES = {"coat", "jacket", "sweater", "hoodie", "blazer", "vest", "cardigan", "boots", "scarf"}
+# Types that tend to be cool
+_COOL_TYPES = {"tank-top", "shorts", "sandals", "swimwear"}
+# Materials that tend to be warm
+_WARM_MATERIALS = {"wool", "fleece", "knit", "leather", "suede", "velvet"}
+# Materials that tend to be cool
+_COOL_MATERIALS = {"linen", "silk", "cotton"}
+
+# Seasons that suggest warmth
+_WARM_SEASONS = {"winter"}
+# Seasons that suggest coolness
+_COOL_SEASONS = {"summer"}
+
+
+@dataclass
+class ComfortProfile:
+    """Normalized comfort profile for an item (0 = coolest, 1 = warmest)."""
+    warmth: float  # 0..1
+    weight: float  # 0..1
+    source: str    # "user", "ai", or "inferred"
+    confidence: float  # 0..1
+
+
+def get_comfort_profile(item: ClothingItem) -> ComfortProfile:
+    """Derive a comfort profile from user/AI tags, or infer from type/material/season."""
+    tags = item.tags or {}
+    fabric_weight = tags.get("fabric_weight") if isinstance(tags, dict) else None
+    warmth_level = tags.get("warmth_level") if isinstance(tags, dict) else None
+    source = tags.get("comfort_tags_source", "ai") if isinstance(tags, dict) else "ai"
+    confidence = tags.get("comfort_tags_confidence", 0.5) if isinstance(tags, dict) else 0.5
+
+    # Prefer user tags > AI tags > inference
+    if source == "user" and (fabric_weight or warmth_level):
+        return _build_profile(fabric_weight, warmth_level, "user", 1.0)
+
+    if fabric_weight or warmth_level:
+        return _build_profile(fabric_weight, warmth_level, source or "ai", confidence)
+
+    return _infer_profile(item)
+
+
+def _build_profile(
+    fabric_weight: str | None,
+    warmth_level: str | None,
+    source: str,
+    confidence: float,
+) -> ComfortProfile:
+    warmth = _WARMTH_ORDER.get(warmth_level or "", 2) / 4.0
+    weight = _FABRIC_ORDER.get(fabric_weight or "", 2) / 3.0
+    return ComfortProfile(warmth=warmth, weight=weight, source=source, confidence=confidence)
+
+
+def _infer_profile(item: ClothingItem) -> ComfortProfile:
+    """Infer comfort from type, subtype, material, and season."""
+    item_type = (item.type or "").lower()
+    material = (item.material or "").lower()
+    seasons = item.season or []
+
+    score = 0.5  # neutral default
+    confidence = 0.3  # low confidence for inference
+
+    if item_type in _WARM_TYPES:
+        score += 0.25
+    elif item_type in _COOL_TYPES:
+        score -= 0.25
+
+    if material in _WARM_MATERIALS:
+        score += 0.15
+    elif material in _COOL_MATERIALS:
+        score -= 0.15
+
+    if any(s in _WARM_SEASONS for s in seasons):
+        score += 0.1
+    if any(s in _COOL_SEASONS for s in seasons):
+        score -= 0.1
+
+    score = max(0.0, min(1.0, score))
+    return ComfortProfile(warmth=score, weight=score, source="inferred", confidence=confidence)
+
 OCCASION_FORMALITY = {
     "casual": ["very-casual", "casual", "smart-casual"],
     "work": ["smart-casual", "business-casual", "formal"],
@@ -114,6 +201,9 @@ def _weather_score(
     seasons = item.season or []
     score = 1.0
 
+    # Get comfort profile for weather-aware scoring
+    comfort = get_comfort_profile(item)
+
     if temp < cold_threshold:
         if item_type in ("outerwear", "sweater") or material in ("wool", "fleece", "knit"):
             score = 1.0
@@ -121,6 +211,9 @@ def _weather_score(
             score = 1.0
         elif item_type in ("shorts", "tank-top", "sandals"):
             score = 0.05
+        elif comfort.warmth < 0.3:
+            # Thin/cool items penalized more in cold weather
+            score = 0.5
         else:
             score = 0.7
     elif temp > hot_threshold:
@@ -128,6 +221,9 @@ def _weather_score(
             score = 1.0
         elif item_type in ("outerwear", "sweater", "boots"):
             score = 0.05
+        elif comfort.warmth > 0.7:
+            # Heavy/warm items penalized more in hot weather
+            score = 0.5
         else:
             score = 0.8
     else:
@@ -165,6 +261,8 @@ def _season_score(item: ClothingItem, current_season: str) -> float:
     if not seasons:
         return 1.0
     if current_season in seasons:
+        return 1.0
+    if "all-season" in seasons:
         return 1.0
 
     adjacent = SEASON_ADJACENCY.get(current_season, [])

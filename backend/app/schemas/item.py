@@ -37,6 +37,8 @@ class ItemTags(BaseModel):
     season: list[str] = Field(default_factory=list)
     formality: str | None = None
     fit: str | None = None
+    fabric_weight: str | None = None
+    warmth_level: str | None = None
 
 
 class ItemBase(BaseModel):
